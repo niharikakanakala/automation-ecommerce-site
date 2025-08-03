@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart, addToWishlist, removeFromWishlist, updateStock, addRecentlyViewed } from '../store';
 import { useTheme, useNotifications, useAnalytics } from '../App';
@@ -11,6 +11,13 @@ const ProductCard = memo(({ product, viewMode }) => {
   
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const wishlistItem = useSelector((state) => 
     state.wishlist.items.find(item => item.product.id === product.id)
@@ -79,61 +86,65 @@ const ProductCard = memo(({ product, viewMode }) => {
   };
   
   const getResponsiveStyles = () => {
-    const width = window.innerWidth;
-    const isMobile = width < 499;
-    const isVerySmall = width < 400;
+    const isMobile = windowWidth < 640;
+    const isTablet = windowWidth >= 640 && windowWidth < 1024;
+    const isSmallMobile = windowWidth < 400;
     
     if (viewMode === 'grid') {
       return {
         card: {
           backgroundColor: colors.surface,
-          borderRadius: '10px',
+          borderRadius: '8px',
           overflow: 'hidden',
-          boxShadow: isHovered ? '0 6px 20px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.06)',
+          boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.1)' : '0 1px 4px rgba(0,0,0,0.05)',
           transition: 'all 0.3s ease',
-          transform: isHovered ? 'translateY(-3px)' : 'none',
+          transform: isHovered ? 'translateY(-2px)' : 'none',
           cursor: 'pointer',
           border: `1px solid ${colors.border}`,
-          minHeight: isMobile ? '260px' : '300px',
-          position: 'relative'
+          height: 'fit-content',
+          maxWidth: '100%',
+          width: '100%',
+          boxSizing: 'border-box'
         },
         productHeader: {
           position: 'relative',
-          height: isMobile ? '70px' : '100px',
-          background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+          height: isMobile ? '80px' : '100px',
+          background: `linear-gradient(135deg, ${colors.primary}10, ${colors.secondary}10)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: isMobile ? '20px' : '32px',
+          fontSize: isMobile ? '24px' : '32px',
           fontWeight: 'bold',
           color: colors.primary,
           borderBottom: `1px solid ${colors.border}`
         },
         productInfo: {
-          padding: isMobile ? '8px' : '12px'
+          padding: isMobile ? '12px' : '16px'
         },
         quantitySelector: {
           display: 'flex',
           alignItems: 'center',
-          border: `2px solid ${colors.border}`,
-          borderRadius: '6px',
+          border: `1px solid ${colors.border}`,
+          borderRadius: '4px',
           overflow: 'hidden',
           backgroundColor: colors.background,
-          height: '32px'
+          height: '32px',
+          width: 'fit-content'
         },
         quantityInput: {
-          width: isMobile ? '30px' : '40px',
-          padding: '4px 2px',
+          width: '35px',
+          padding: '0',
           border: 'none',
           textAlign: 'center',
           backgroundColor: colors.background,
           color: colors.text,
-          fontSize: isMobile ? '11px' : '13px',
-          fontWeight: '600',
-          outline: 'none'
+          fontSize: '12px',
+          fontWeight: '500',
+          outline: 'none',
+          height: '30px'
         },
         quantityBtn: {
-          padding: '4px 6px',
+          padding: '0',
           border: 'none',
           backgroundColor: colors.background,
           color: colors.text,
@@ -141,7 +152,7 @@ const ProductCard = memo(({ product, viewMode }) => {
           fontSize: '14px',
           fontWeight: 'bold',
           transition: 'background-color 0.2s ease',
-          minWidth: '24px',
+          width: '28px',
           height: '32px',
           display: 'flex',
           alignItems: 'center',
@@ -152,66 +163,75 @@ const ProductCard = memo(({ product, viewMode }) => {
       return {
         card: {
           backgroundColor: colors.surface,
-          borderRadius: '10px',
+          borderRadius: '8px',
           padding: isMobile ? '12px' : '16px',
-          marginBottom: '12px',
+          marginBottom: '8px',
           display: 'flex',
           gap: isMobile ? '12px' : '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
           transition: 'all 0.3s ease',
           border: `1px solid ${colors.border}`,
           flexDirection: isMobile ? 'column' : 'row',
-          minHeight: isMobile ? 'auto' : '120px'
+          width: '100%',
+          boxSizing: 'border-box'
         },
         productIcon: {
-          width: isMobile ? '100%' : '80px',
-          height: isMobile ? '80px' : '80px',
-          background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
-          borderRadius: '8px',
+          width: isMobile ? '60px' : '80px',
+          height: isMobile ? '60px' : '80px',
+          background: `linear-gradient(135deg, ${colors.primary}10, ${colors.secondary}10)`,
+          borderRadius: '6px',
           flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: isMobile ? '24px' : '28px',
+          fontSize: isMobile ? '20px' : '24px',
           fontWeight: 'bold',
           color: colors.primary,
-          border: `1px solid ${colors.border}`
+          border: `1px solid ${colors.border}`,
+          alignSelf: isMobile ? 'center' : 'flex-start'
         },
         quantitySelector: {
           display: 'flex',
           alignItems: 'center',
-          border: `2px solid ${colors.border}`,
-          borderRadius: '6px',
+          border: `1px solid ${colors.border}`,
+          borderRadius: '4px',
           overflow: 'hidden',
           backgroundColor: colors.background,
-          height: '32px'
+          height: '32px',
+          width: 'fit-content'
         },
         quantityInput: {
           width: '35px',
-          padding: '4px 2px',
+          padding: '0',
           border: 'none',
           textAlign: 'center',
           backgroundColor: colors.background,
           color: colors.text,
           fontSize: '12px',
-          fontWeight: '600',
-          outline: 'none'
+          fontWeight: '500',
+          outline: 'none',
+          height: '30px'
         },
         quantityBtn: {
-          padding: '4px 8px',
+          padding: '0',
           border: 'none',
           backgroundColor: colors.background,
           color: colors.text,
           cursor: 'pointer',
           fontSize: '14px',
           fontWeight: 'bold',
-          height: '32px'
+          width: '28px',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }
       };
     }
   };
   
   const styles = getResponsiveStyles();
+  const isMobile = windowWidth < 640;
   
   return (
     <div
@@ -239,13 +259,13 @@ const ProductCard = memo(({ product, viewMode }) => {
                 id={`discount-badge-${product.id}`}
                 style={{
                   position: 'absolute',
-                  top: '4px',
-                  left: '4px',
+                  top: '6px',
+                  left: '6px',
                   backgroundColor: colors.error,
                   color: 'white',
                   padding: '2px 6px',
                   borderRadius: '4px',
-                  fontSize: window.innerWidth < 499 ? '9px' : '11px',
+                  fontSize: '10px',
                   fontWeight: 'bold',
                   zIndex: 2
                 }}
@@ -260,13 +280,13 @@ const ProductCard = memo(({ product, viewMode }) => {
                 id={`low-stock-badge-${product.id}`}
                 style={{
                   position: 'absolute',
-                  top: '4px',
-                  right: '4px',
+                  top: '6px',
+                  right: '6px',
                   backgroundColor: colors.warning,
                   color: 'black',
                   padding: '2px 6px',
                   borderRadius: '4px',
-                  fontSize: window.innerWidth < 499 ? '8px' : '10px',
+                  fontSize: '9px',
                   fontWeight: 'bold',
                   zIndex: 2
                 }}
@@ -278,7 +298,7 @@ const ProductCard = memo(({ product, viewMode }) => {
             <div 
               className="product-category-icon"
               style={{
-                fontSize: window.innerWidth < 499 ? '20px' : '32px',
+                fontSize: isMobile ? '24px' : '32px',
                 transition: 'transform 0.3s ease',
                 transform: isHovered ? 'scale(1.1)' : 'scale(1)'
               }}
@@ -296,17 +316,17 @@ const ProductCard = memo(({ product, viewMode }) => {
               }}
               style={{
                 position: 'absolute',
-                bottom: '4px',
-                right: '4px',
+                bottom: '6px',
+                right: '6px',
                 backgroundColor: wishlistItem ? colors.error : 'white',
                 border: `1px solid ${colors.border}`,
                 borderRadius: '50%',
-                width: window.innerWidth < 499 ? '24px' : '28px',
-                height: window.innerWidth < 499 ? '24px' : '28px',
+                width: '26px',
+                height: '26px',
                 cursor: 'pointer',
-                fontSize: window.innerWidth < 499 ? '10px' : '12px',
+                fontSize: '11px',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -325,10 +345,10 @@ const ProductCard = memo(({ product, viewMode }) => {
               className="product-name"
               id={`product-name-${product.id}`}
               style={{ 
-                margin: '0 0 4px 0', 
-                fontSize: window.innerWidth < 499 ? '12px' : '15px',
+                margin: '0 0 6px 0', 
+                fontSize: isMobile ? '13px' : '14px',
                 fontWeight: '600',
-                height: window.innerWidth < 499 ? '30px' : '36px',
+                minHeight: '32px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 color: colors.text,
@@ -344,9 +364,9 @@ const ProductCard = memo(({ product, viewMode }) => {
             <div 
               className="product-category"
               style={{
-                fontSize: window.innerWidth < 499 ? '9px' : '11px',
+                fontSize: '10px',
                 color: colors.textSecondary,
-                marginBottom: '4px',
+                marginBottom: '6px',
                 textTransform: 'capitalize'
               }}
             >
@@ -359,12 +379,12 @@ const ProductCard = memo(({ product, viewMode }) => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '4px', 
-                marginBottom: '6px' 
+                marginBottom: '8px' 
               }}
             >
               <div className="rating-stars" style={{ 
                 color: colors.warning, 
-                fontSize: window.innerWidth < 499 ? '10px' : '12px' 
+                fontSize: '11px'
               }}>
                 {'★'.repeat(Math.floor(product.rating))}
                 {'☆'.repeat(5 - Math.floor(product.rating))}
@@ -372,7 +392,7 @@ const ProductCard = memo(({ product, viewMode }) => {
               <span 
                 className="review-count"
                 style={{ 
-                  fontSize: window.innerWidth < 499 ? '8px' : '10px', 
+                  fontSize: '9px', 
                   color: colors.textSecondary 
                 }}
               >
@@ -386,14 +406,14 @@ const ProductCard = memo(({ product, viewMode }) => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '6px', 
-                marginBottom: '8px' 
+                marginBottom: '12px' 
               }}
             >
               <span 
                 className="current-price"
                 id={`price-${product.id}`}
                 style={{ 
-                  fontSize: window.innerWidth < 499 ? '14px' : '16px', 
+                  fontSize: isMobile ? '14px' : '15px', 
                   fontWeight: 'bold', 
                   color: colors.primary 
                 }}
@@ -404,7 +424,7 @@ const ProductCard = memo(({ product, viewMode }) => {
                 <span 
                   className="original-price"
                   style={{ 
-                    fontSize: window.innerWidth < 499 ? '10px' : '12px', 
+                    fontSize: '11px', 
                     textDecoration: 'line-through',
                     color: colors.textSecondary 
                   }}
@@ -418,7 +438,7 @@ const ProductCard = memo(({ product, viewMode }) => {
               className="product-actions"
               style={{ 
                 display: 'flex', 
-                gap: '6px', 
+                gap: '8px', 
                 alignItems: 'center' 
               }}
             >
@@ -480,17 +500,20 @@ const ProductCard = memo(({ product, viewMode }) => {
                 disabled={product.stock === 0}
                 style={{
                   flex: 1,
-                  padding: window.innerWidth < 499 ? '6px 8px' : '8px 12px',
+                  padding: '8px 10px',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   backgroundColor: product.stock === 0 ? colors.textSecondary : colors.primary,
                   color: 'white',
                   cursor: product.stock === 0 ? 'not-allowed' : 'pointer',
                   fontWeight: '600',
-                  fontSize: window.innerWidth < 499 ? '10px' : '12px',
+                  fontSize: '11px',
                   transition: 'all 0.2s ease',
                   opacity: product.stock === 0 ? 0.6 : 1,
-                  minHeight: '32px'
+                  height: '32px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 {product.stock === 0 ? 'Out of Stock' : isInCart ? 'Add More' : 'Add to Cart'}
@@ -510,15 +533,15 @@ const ProductCard = memo(({ product, viewMode }) => {
           
           <div 
             className="product-details-list"
-            style={{ flex: 1, minWidth: 0 }}
+            style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}
           >
             <h3 
               className="product-name-list"
               id={`product-name-list-${product.id}`}
               style={{ 
-                margin: '0 0 4px 0',
+                margin: '0',
                 color: colors.text,
-                fontSize: window.innerWidth < 499 ? '14px' : '16px',
+                fontSize: isMobile ? '14px' : '15px',
                 fontWeight: '600',
                 lineHeight: '1.3'
               }}
@@ -529,9 +552,8 @@ const ProductCard = memo(({ product, viewMode }) => {
             <div 
               className="product-category-list"
               style={{
-                fontSize: window.innerWidth < 499 ? '10px' : '12px',
+                fontSize: '11px',
                 color: colors.textSecondary,
-                marginBottom: '4px',
                 textTransform: 'capitalize'
               }}
             >
@@ -541,14 +563,14 @@ const ProductCard = memo(({ product, viewMode }) => {
             <p 
               className="product-description"
               style={{ 
-                margin: '0 0 8px 0', 
+                margin: '0', 
                 color: colors.textSecondary,
-                fontSize: window.innerWidth < 499 ? '11px' : '13px',
+                fontSize: '12px',
                 lineHeight: '1.3',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
-                WebkitLineClamp: 2,
+                WebkitLineClamp: isMobile ? 1 : 2,
                 WebkitBoxOrient: 'vertical'
               }}
             >
@@ -559,15 +581,16 @@ const ProductCard = memo(({ product, viewMode }) => {
               className="product-meta-list"
               style={{ 
                 display: 'flex', 
-                gap: window.innerWidth < 499 ? '8px' : '16px', 
+                gap: isMobile ? '8px' : '12px', 
                 alignItems: 'center',
-                flexWrap: 'wrap'
+                flexWrap: 'wrap',
+                marginTop: '4px'
               }}
             >
               <span 
                 className="list-price"
                 style={{ 
-                  fontSize: window.innerWidth < 499 ? '16px' : '18px', 
+                  fontSize: isMobile ? '15px' : '16px', 
                   fontWeight: 'bold', 
                   color: colors.primary 
                 }}
@@ -578,7 +601,7 @@ const ProductCard = memo(({ product, viewMode }) => {
                 className="list-rating"
                 style={{ 
                   color: colors.warning, 
-                  fontSize: window.innerWidth < 499 ? '10px' : '12px' 
+                  fontSize: '11px'
                 }}
               >
                 {'★'.repeat(Math.floor(product.rating))} ({product.reviewsCount})
@@ -587,8 +610,8 @@ const ProductCard = memo(({ product, viewMode }) => {
                 className="list-stock"
                 style={{ 
                   color: product.stock > 0 ? colors.success : colors.error,
-                  fontWeight: 'bold',
-                  fontSize: window.innerWidth < 499 ? '10px' : '12px'
+                  fontWeight: '600',
+                  fontSize: '11px'
                 }}
               >
                 {product.stock > 0 ? `${product.stock} left` : 'Out of stock'}
@@ -600,11 +623,11 @@ const ProductCard = memo(({ product, viewMode }) => {
             className="product-actions-list"
             style={{ 
               display: 'flex', 
-              flexDirection: window.innerWidth < 499 ? 'column' : 'row',
+              flexDirection: isMobile ? 'row' : 'row',
               gap: '8px',
-              alignItems: window.innerWidth < 499 ? 'stretch' : 'center',
+              alignItems: 'center',
               flexShrink: 0,
-              minWidth: window.innerWidth < 499 ? '100%' : 'auto'
+              flexWrap: isMobile ? 'wrap' : 'nowrap'
             }}
           >
             <button
@@ -616,19 +639,20 @@ const ProductCard = memo(({ product, viewMode }) => {
                 handleAddToWishlist();
               }}
               style={{
-                padding: window.innerWidth < 499 ? '6px 12px' : '8px 12px',
-                border: `2px solid ${colors.primary}`,
-                borderRadius: '6px',
+                padding: '6px 10px',
+                border: `1px solid ${colors.primary}`,
+                borderRadius: '4px',
                 backgroundColor: 'transparent',
                 color: colors.primary,
                 cursor: 'pointer',
-                fontSize: window.innerWidth < 499 ? '11px' : '13px',
+                fontSize: '11px',
                 transition: 'all 0.2s ease',
-                fontWeight: '600',
-                minHeight: '32px'
+                fontWeight: '500',
+                height: '32px',
+                whiteSpace: 'nowrap'
               }}
             >
-              {wishlistItem ? '❤️ Remove' : '🤍 Wishlist'}
+              {wishlistItem ? '❤️' : '🤍'}
             </button>
             
             <div 
@@ -651,6 +675,8 @@ const ProductCard = memo(({ product, viewMode }) => {
                     setQuantity(Math.max(1, quantity - 1));
                   }}
                   style={styles.quantityBtn}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = colors.border}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = colors.background}
                 >
                   -
                 </button>
@@ -673,6 +699,8 @@ const ProductCard = memo(({ product, viewMode }) => {
                     setQuantity(Math.min(product.stock, quantity + 1));
                   }}
                   style={styles.quantityBtn}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = colors.border}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = colors.background}
                 >
                   +
                 </button>
@@ -688,21 +716,21 @@ const ProductCard = memo(({ product, viewMode }) => {
                 }}
                 disabled={product.stock === 0}
                 style={{
-                  padding: window.innerWidth < 499 ? '6px 12px' : '8px 12px',
+                  padding: '6px 12px',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   backgroundColor: product.stock === 0 ? colors.textSecondary : colors.primary,
                   color: 'white',
                   cursor: product.stock === 0 ? 'not-allowed' : 'pointer',
                   fontWeight: '600',
-                  fontSize: window.innerWidth < 499 ? '11px' : '13px',
+                  fontSize: '11px',
                   opacity: product.stock === 0 ? 0.6 : 1,
                   transition: 'all 0.2s ease',
-                  minHeight: '32px',
+                  height: '32px',
                   whiteSpace: 'nowrap'
                 }}
               >
-                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {product.stock === 0 ? 'Out' : 'Add to Cart'}
               </button>
             </div>
           </div>

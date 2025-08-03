@@ -19,6 +19,7 @@ const SearchAndFilter = () => {
   
   const [localSearch, setLocalSearch] = useState(filters.searchQuery);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -30,133 +31,178 @@ const SearchAndFilter = () => {
   useEffect(() => {
     debouncedSearch(localSearch);
   }, [localSearch, debouncedSearch]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const getResponsiveStyles = () => {
-    const width = window.innerWidth;
-    const isMobile = width < 499;
-    const isTablet = width >= 499 && width < 768;
+    const isMobile = windowWidth < 640;
+    const isTablet = windowWidth >= 640 && windowWidth < 1024;
+    const isDesktop = windowWidth >= 1024;
     
     return {
       container: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '12px' : '20px',
-        borderRadius: '12px',
-        marginBottom: isMobile ? '16px' : '20px',
+        padding: isMobile ? '12px' : '16px',
+        borderRadius: '8px',
+        marginBottom: '16px',
         border: `1px solid ${colors.border}`,
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.04)',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
       },
+      
+      // Main search controls container
       searchControls: {
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 
-                           isTablet ? '1fr auto' : '1fr auto auto',
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         gap: isMobile ? '8px' : '12px',
-        alignItems: 'center'
+        alignItems: isMobile ? 'stretch' : 'center',
+        width: '100%'
       },
+      
+      // Search input wrapper - takes remaining space
+      searchWrapper: {
+        flex: '1',
+        minWidth: 0,
+        width: '100%'
+      },
+      
       searchInput: {
         width: '100%',
-        padding: isMobile ? '10px 12px' : '12px 16px',
-        border: `2px solid ${colors.border}`,
-        borderRadius: '8px',
-        fontSize: isMobile ? '14px' : '16px',
+        padding: isMobile ? '10px 12px' : '10px 14px',
+        border: `1px solid ${colors.border}`,
+        borderRadius: '6px',
+        fontSize: '14px',
         backgroundColor: colors.background,
         color: colors.text,
         outline: 'none',
         transition: 'all 0.2s ease',
-        fontWeight: '500',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        fontWeight: '400',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        boxSizing: 'border-box'
       },
+      
+      // Controls wrapper for sort and filter button
+      controlsWrapper: {
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '6px' : '8px',
+        width: isMobile ? '100%' : 'auto',
+        flexShrink: 0
+      },
+      
       select: {
-        padding: isMobile ? '10px 12px' : '12px 16px',
-        border: `2px solid ${colors.border}`,
-        borderRadius: '8px',
+        padding: '10px 12px',
+        border: `1px solid ${colors.border}`,
+        borderRadius: '6px',
         backgroundColor: colors.background,
         color: colors.text,
         cursor: 'pointer',
-        fontSize: isMobile ? '12px' : '14px',
+        fontSize: '13px',
         fontWeight: '500',
-        minWidth: isMobile ? '100%' : '160px',
+        minWidth: isMobile ? '100%' : '140px',
         outline: 'none',
         transition: 'all 0.2s ease',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        boxSizing: 'border-box'
       },
+      
       filterBtn: {
-        padding: isMobile ? '10px 16px' : '12px 20px',
-        border: `2px solid ${colors.primary}`,
-        borderRadius: '8px',
+        padding: '10px 16px',
+        border: `1px solid ${colors.primary}`,
+        borderRadius: '6px',
         backgroundColor: showAdvancedFilters ? colors.primary : 'transparent',
         color: showAdvancedFilters ? 'white' : colors.primary,
         cursor: 'pointer',
-        fontSize: isMobile ? '12px' : '14px',
-        fontWeight: '700',
+        fontSize: '13px',
+        fontWeight: '600',
         transition: 'all 0.2s ease',
         whiteSpace: 'nowrap',
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
         justifyContent: 'center',
-        minHeight: '40px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        minHeight: '38px',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        minWidth: isMobile ? '100%' : '100px',
+        boxSizing: 'border-box'
       },
+      
       advancedFilters: {
-        marginTop: '16px',
-        padding: isMobile ? '12px' : '20px',
-        border: `2px solid ${colors.border}`,
-        borderRadius: '8px',
+        marginTop: '12px',
+        padding: isMobile ? '12px' : '16px',
+        border: `1px solid ${colors.border}`,
+        borderRadius: '6px',
         backgroundColor: colors.background,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+        width: '100%',
+        boxSizing: 'border-box'
       },
+      
       filterGrid: {
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : 
                            isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-        gap: isMobile ? '16px' : '20px'
+        gap: isMobile ? '16px' : '20px',
+        width: '100%'
       },
+      
       filterSection: {
         display: 'flex',
         flexDirection: 'column',
         gap: '8px'
       },
+      
       filterLabel: {
         display: 'block',
-        marginBottom: '8px',
-        fontWeight: '700',
+        marginBottom: '6px',
+        fontWeight: '600',
         color: colors.text,
-        fontSize: isMobile ? '14px' : '16px'
+        fontSize: '14px'
       },
+      
       checkboxLabel: {
         display: 'flex',
         alignItems: 'center',
         cursor: 'pointer',
         color: colors.text,
-        fontSize: isMobile ? '12px' : '14px',
-        fontWeight: '500',
+        fontSize: '13px',
+        fontWeight: '400',
         padding: '2px 0',
         gap: '8px'
       },
+      
       checkbox: {
         width: '16px',
         height: '16px',
         accentColor: colors.primary,
         cursor: 'pointer'
       },
+      
       priceSlider: {
         width: '100%',
         marginBottom: '8px',
-        height: '6px',
-        borderRadius: '3px',
+        height: '4px',
+        borderRadius: '2px',
         outline: 'none',
         accentColor: colors.primary,
         cursor: 'pointer'
       },
+      
       resetBtn: {
-        padding: isMobile ? '8px 16px' : '10px 20px',
-        border: `2px solid ${colors.textSecondary}`,
-        borderRadius: '8px',
+        padding: '8px 16px',
+        border: `1px solid ${colors.textSecondary}`,
+        borderRadius: '6px',
         backgroundColor: 'transparent',
         color: colors.textSecondary,
         cursor: 'pointer',
-        fontSize: isMobile ? '12px' : '14px',
-        fontWeight: '600',
+        fontSize: '13px',
+        fontWeight: '500',
         transition: 'all 0.2s ease'
       }
     };
@@ -176,7 +222,11 @@ const SearchAndFilter = () => {
         id="search-controls"
         style={styles.searchControls}
       >
-        <div className="search-input-wrapper" style={{ position: 'relative' }}>
+        {/* Search Input */}
+        <div 
+          className="search-input-wrapper" 
+          style={styles.searchWrapper}
+        >
           <input
             className="search-input input"
             id="product-search"
@@ -188,61 +238,67 @@ const SearchAndFilter = () => {
             style={styles.searchInput}
             onFocus={(e) => {
               e.target.style.borderColor = colors.primary;
-              e.target.style.boxShadow = `0 0 0 3px ${colors.primary}20`;
+              e.target.style.boxShadow = `0 0 0 2px ${colors.primary}15`;
             }}
             onBlur={(e) => {
               e.target.style.borderColor = colors.border;
-              e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
             }}
           />
         </div>
         
-        <select
-          className="sort-select"
-          id="sort-dropdown"
-          data-testid="sort-select"
-          value={sortBy}
-          onChange={(e) => dispatch(setSortBy(e.target.value))}
-          style={styles.select}
-          onFocus={(e) => {
-            e.target.style.borderColor = colors.primary;
-            e.target.style.boxShadow = `0 0 0 3px ${colors.primary}20`;
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = colors.border;
-            e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-          }}
+        {/* Controls (Sort + Filter Button) */}
+        <div 
+          className="controls-wrapper"
+          style={styles.controlsWrapper}
         >
-          <option value={SortBy.POPULARITY_DESC}>🔥 Popular</option>
-          <option value={SortBy.PRICE_ASC}>💰 Low Price</option>
-          <option value={SortBy.PRICE_DESC}>💸 High Price</option>
-          <option value={SortBy.RATING_DESC}>⭐ Top Rated</option>
-          <option value={SortBy.NAME_ASC}>🔤 A to Z</option>
-          <option value={SortBy.NAME_DESC}>🔤 Z to A</option>
-        </select>
-        
-        <button
-          className="advanced-filter-btn btn"
-          id="advanced-filters-toggle"
-          data-testid="advanced-filters-button"
-          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          style={styles.filterBtn}
-          onMouseEnter={(e) => {
-            if (!showAdvancedFilters) {
-              e.target.style.backgroundColor = colors.primary;
-              e.target.style.color = 'white';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!showAdvancedFilters) {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.color = colors.primary;
-            }
-          }}
-        >
-          <span>🔧</span>
-          <span>{window.innerWidth >= 499 ? 'Filters' : 'Filter'}</span>
-        </button>
+          <select
+            className="sort-select"
+            id="sort-dropdown"
+            data-testid="sort-select"
+            value={sortBy}
+            onChange={(e) => dispatch(setSortBy(e.target.value))}
+            style={styles.select}
+            onFocus={(e) => {
+              e.target.style.borderColor = colors.primary;
+              e.target.style.boxShadow = `0 0 0 2px ${colors.primary}15`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = colors.border;
+              e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+            }}
+          >
+            <option value={SortBy.POPULARITY_DESC}>🔥 Popular</option>
+            <option value={SortBy.PRICE_ASC}>💰 Low Price</option>
+            <option value={SortBy.PRICE_DESC}>💸 High Price</option>
+            <option value={SortBy.RATING_DESC}>⭐ Top Rated</option>
+            <option value={SortBy.NAME_ASC}>🔤 A to Z</option>
+            <option value={SortBy.NAME_DESC}>🔤 Z to A</option>
+          </select>
+          
+          <button
+            className="advanced-filter-btn btn"
+            id="advanced-filters-toggle"
+            data-testid="advanced-filters-button"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            style={styles.filterBtn}
+            onMouseEnter={(e) => {
+              if (!showAdvancedFilters) {
+                e.target.style.backgroundColor = colors.primary;
+                e.target.style.color = 'white';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!showAdvancedFilters) {
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.color = colors.primary;
+              }
+            }}
+          >
+            <span>🔧</span>
+            <span>Filters</span>
+          </button>
+        </div>
       </div>
       
       {showAdvancedFilters && (
@@ -264,7 +320,7 @@ const SearchAndFilter = () => {
               >
                 📂 Categories
               </label>
-              <div className="category-checkboxes" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div className="category-checkboxes" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {Object.values(Category).map(cat => (
                   <label 
                     key={cat} 
@@ -327,8 +383,8 @@ const SearchAndFilter = () => {
                   style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between',
-                    fontSize: window.innerWidth < 499 ? '12px' : '14px',
-                    fontWeight: '600',
+                    fontSize: '12px',
+                    fontWeight: '500',
                     color: colors.textSecondary
                   }}
                 >
@@ -346,7 +402,7 @@ const SearchAndFilter = () => {
               >
                 ⚙️ Other Filters
               </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <label 
                   className="checkbox-label"
                   id="stock-filter-label"
@@ -371,8 +427,8 @@ const SearchAndFilter = () => {
                       display: 'flex',
                       alignItems: 'center',
                       color: colors.text,
-                      fontSize: window.innerWidth < 499 ? '12px' : '14px',
-                      fontWeight: '500',
+                      fontSize: '13px',
+                      fontWeight: '400',
                       gap: '8px'
                     }}
                   >
@@ -385,14 +441,15 @@ const SearchAndFilter = () => {
                       onChange={(e) => dispatch(updateFilters({ minRating: parseFloat(e.target.value) }))}
                       style={{ 
                         padding: '4px 8px',
-                        border: `2px solid ${colors.border}`,
+                        border: `1px solid ${colors.border}`,
                         borderRadius: '4px',
                         backgroundColor: colors.background,
                         color: colors.text,
-                        fontSize: window.innerWidth < 499 ? '11px' : '13px',
-                        fontWeight: '500',
+                        fontSize: '12px',
+                        fontWeight: '400',
                         outline: 'none',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        minWidth: '70px'
                       }}
                     >
                       <option value="0">All</option>
@@ -407,7 +464,7 @@ const SearchAndFilter = () => {
           </div>
           
           {/* Reset Filters Button */}
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
             <button
               className="reset-filters-btn btn"
               id="reset-filters"
