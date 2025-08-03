@@ -1,0 +1,230 @@
+import React, { useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { SortBy, setViewMode } from '../store';
+import { useTheme } from '../App';
+import ProductCard from './ProductCard';
+
+const ProductList = () => {
+  const dispatch = useDispatch();
+  const { colors } = useTheme();
+  const products = useSelector((state) => Object.values(state.products.items));
+  const filters = useSelector((state) => state.ui.filters);
+  const sortBy = useSelector((state) => state.ui.sortBy);
+  const viewMode = useSelector((state) => state.ui.viewMode);
+  
+  // Apply filters and sorting
+  const filteredProducts = useMemo(() => {
+    let filtered = products;
+    
+    // Search filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+    
+    // Category filter
+    if (filters.categories.length > 0) {
+      filtered = filtered.filter(p => filters.categories.includes(p.category));
+    }
+    
+    // Price filter
+    filtered = filtered.filter(p => 
+      p.price >= filters.priceRange.min && p.price <= filters.priceRange.max
+    );
+    
+    // Stock filter
+    if (filters.inStock) {
+      filtered = filtered.filter(p => p.stock > 0);
+    }
+    
+    // Rating filter
+    if (filters.minRating > 0) {
+      filtered = filtered.filter(p => p.rating >= filters.minRating);
+    }
+    
+    // Sorting
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case SortBy.PRICE_ASC:
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case SortBy.PRICE_DESC:
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case SortBy.NAME_ASC:
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case SortBy.NAME_DESC:
+        sorted.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case SortBy.RATING_DESC:
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case SortBy.POPULARITY_DESC:
+        sorted.sort((a, b) => b.popularity - a.popularity);
+        break;
+      default:
+        break;
+    }
+    
+    return sorted;
+  }, [products, filters, sortBy]);
+  
+  const getResponsiveStyles = () => {
+    const isMobile = window.innerWidth < 499;
+    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    
+    return {
+      container: {
+        marginBottom: '32px'
+      },
+      header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '16px'
+      },
+      title: {
+        margin: 0,
+        color: colors.text,
+        fontSize: isMobile ? '20px' : '24px',
+        fontWeight: '700'
+      },
+      viewToggle: {
+        display: 'flex',
+        gap: '8px',
+        padding: '4px',
+        backgroundColor: colors.surface,
+        borderRadius: '10px',
+        border: `2px solid ${colors.border}`
+      },
+      viewBtn: (active) => ({
+        padding: isMobile ? '8px 12px' : '10px 16px',
+        border: 'none',
+        borderRadius: '6px',
+        backgroundColor: active ? colors.primary : 'transparent',
+        color: active ? 'white' : colors.text,
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: '600',
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px'
+      }),
+      grid: {
+        display: 'grid',
+        gap: isMobile ? '16px' : '20px'
+      },
+      noProducts: {
+        textAlign: 'center',
+        padding: isMobile ? '40px 20px' : '60px 20px',
+        backgroundColor: colors.surface,
+        borderRadius: '12px',
+        border: `1px solid ${colors.border}`
+      }
+    };
+  };
+  
+  const styles = getResponsiveStyles();
+  
+  const getGridColumns = () => {
+    if (viewMode === 'list') return '1fr';
+    
+    const width = window.innerWidth;
+    if (width < 499) return '1fr';
+    if (width < 768) return 'repeat(2, 1fr)';
+    if (width < 1024) return 'repeat(3, 1fr)';
+    return 'repeat(4, 1fr)';
+  };
+  
+  return (
+    <div 
+      className="product-list-container"
+      id="products-section"
+      style={styles.container}
+    >
+      <div 
+        className="product-list-header"
+        style={styles.header}
+      >
+        <h2 
+          className="products-title"
+          id="products-count"
+          data-testid="products-count"
+          style={styles.title}
+        >
+          Products ({filteredProducts.length} results)
+        </h2>
+        
+        <div 
+          className="view-toggle"
+          id="view-toggle-controls"
+          style={styles.viewToggle}
+        >
+          <button
+            className={`view-btn grid-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            id="grid-view-btn"
+            data-testid="grid-view-button"
+            onClick={() => dispatch(setViewMode('grid'))}
+            style={styles.viewBtn(viewMode === 'grid')}
+          >
+            <span>📱</span>
+            {window.innerWidth >= 499 && <span>Grid</span>}
+          </button>
+          <button
+            className={`view-btn list-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            id="list-view-btn"
+            data-testid="list-view-button"
+            onClick={() => dispatch(setViewMode('list'))}
+            style={styles.viewBtn(viewMode === 'list')}
+          >
+            <span>📋</span>
+            {window.innerWidth >= 499 && <span>List</span>}
+          </button>
+        </div>
+      </div>
+      
+      {filteredProducts.length === 0 ? (
+        <div 
+          className="no-products"
+          id="no-products-message"
+          data-testid="no-products-found"
+          style={styles.noProducts}
+        >
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+          <h3 style={{ color: colors.text, marginBottom: '8px' }}>No products found</h3>
+          <p style={{ color: colors.textSecondary, fontSize: '16px' }}>
+            Try adjusting your filters or search query
+          </p>
+        </div>
+      ) : (
+        <div 
+          className={`products-grid ${viewMode}-layout`}
+          id="products-grid"
+          data-testid="products-grid"
+          style={{
+            ...styles.grid,
+            gridTemplateColumns: getGridColumns()
+          }}
+        >
+          {filteredProducts.map(product => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              viewMode={viewMode} 
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProductList;
