@@ -1,6 +1,7 @@
 {
   "name": "e-commerce",
   "version": "0.1.0",
+  "homepage":	"https://projects.hackerearth.com/p10/",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
