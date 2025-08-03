@@ -348,6 +348,15 @@ const rootReducer = (state = initialState, action) => {
       };
     }
     
+    case 'CLEAR_RECENTLY_VIEWED':
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          recentlyViewed: []
+        }
+      };
+    
     default:
       return state;
   }
@@ -430,4 +439,8 @@ export const setViewMode = (mode) => ({
 export const addRecentlyViewed = (productId) => ({
   type: 'ADD_RECENTLY_VIEWED',
   payload: productId
+});
+
+export const clearRecentlyViewed = () => ({
+  type: 'CLEAR_RECENTLY_VIEWED'
 });
