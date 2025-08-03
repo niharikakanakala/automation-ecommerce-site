@@ -29,6 +29,17 @@ const Cart = ({ onContinueShopping }) => {
     }).format(price);
   };
   
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'ELECTRONICS': '📱',
+      'CLOTHING': '👕',
+      'BOOKS': '📚',
+      'HOME': '🏠',
+      'SPORTS': '⚽'
+    };
+    return icons[category] || '📦';
+  };
+  
   const handleQuantityUpdate = (item, newQuantity) => {
     const currentStock = products[item.product.id]?.stock || 0;
     const diff = newQuantity - item.quantity;
@@ -68,15 +79,16 @@ const Cart = ({ onContinueShopping }) => {
   };
   
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
-    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
     
     return {
       container: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '16px' : isTablet ? '20px' : '30px',
+        padding: isMobile ? '12px' : isTablet ? '16px' : '20px',
         borderRadius: '12px',
-        minHeight: '400px',
+        minHeight: '300px',
         border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)'
       },
@@ -84,76 +96,85 @@ const Cart = ({ onContinueShopping }) => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
+        marginBottom: isMobile ? '16px' : '20px',
         flexWrap: 'wrap',
-        gap: '16px'
+        gap: '12px'
       },
       title: {
         margin: 0,
         color: colors.text,
-        fontSize: isMobile ? '20px' : '24px',
+        fontSize: isMobile ? '18px' : '22px',
         fontWeight: '700'
       },
       clearBtn: {
-        padding: isMobile ? '8px 16px' : '10px 20px',
+        padding: isMobile ? '6px 12px' : '8px 16px',
         border: `2px solid ${colors.error}`,
-        borderRadius: '8px',
+        borderRadius: '6px',
         backgroundColor: 'transparent',
         color: colors.error,
         cursor: 'pointer',
-        fontSize: '14px',
+        fontSize: isMobile ? '11px' : '13px',
         fontWeight: '600',
         transition: 'all 0.2s ease'
       },
       cartItem: {
         display: 'flex',
-        gap: isMobile ? '12px' : '20px',
-        padding: isMobile ? '16px' : '20px',
+        gap: isMobile ? '8px' : '12px',
+        padding: isMobile ? '12px' : '16px',
         borderBottom: `1px solid ${colors.border}`,
         backgroundColor: colors.background,
         borderRadius: '8px',
-        marginBottom: '16px',
+        marginBottom: '12px',
         flexDirection: isMobile ? 'column' : 'row',
         boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)'
       },
-      itemImage: {
-        width: isMobile ? '100%' : '100px',
-        height: isMobile ? '200px' : '100px',
-        objectFit: 'cover',
-        borderRadius: '8px',
-        flexShrink: 0
+      productIcon: {
+        width: isMobile ? '60px' : '70px',
+        height: isMobile ? '60px' : '70px',
+        background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+        borderRadius: '6px',
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: isMobile ? '20px' : '24px',
+        fontWeight: 'bold',
+        color: colors.primary,
+        border: `1px solid ${colors.border}`,
+        alignSelf: isMobile ? 'center' : 'flex-start'
       },
       quantityControls: {
         display: 'flex',
         alignItems: 'center',
         border: `2px solid ${colors.border}`,
-        borderRadius: '8px',
+        borderRadius: '6px',
         overflow: 'hidden',
-        backgroundColor: colors.background
+        backgroundColor: colors.background,
+        height: '32px'
       },
       quantityBtn: {
-        padding: isMobile ? '8px 12px' : '10px 14px',
+        padding: '4px 8px',
         border: 'none',
         backgroundColor: colors.background,
         color: colors.text,
         cursor: 'pointer',
-        fontSize: '16px',
+        fontSize: '14px',
         fontWeight: 'bold',
         transition: 'background-color 0.2s ease',
-        minWidth: '40px',
-        height: '40px',
+        minWidth: '32px',
+        height: '32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       },
       quantityInput: {
-        width: '60px',
-        padding: '8px 4px',
+        width: '40px',
+        padding: '4px 2px',
         border: 'none',
         textAlign: 'center',
         backgroundColor: colors.background,
         color: colors.text,
-        fontSize: '16px',
+        fontSize: '13px',
         fontWeight: '600',
         outline: 'none'
       }
@@ -170,10 +191,10 @@ const Cart = ({ onContinueShopping }) => {
         data-testid="empty-cart"
         style={{
           backgroundColor: colors.surface,
-          padding: window.innerWidth < 499 ? '40px 20px' : '60px 40px',
+          padding: window.innerWidth < 499 ? '30px 16px' : '50px 30px',
           borderRadius: '12px',
           textAlign: 'center',
-          minHeight: '400px',
+          minHeight: '300px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -181,16 +202,25 @@ const Cart = ({ onContinueShopping }) => {
           border: `1px solid ${colors.border}`
         }}
       >
-        <div className="empty-cart-icon" style={{ fontSize: '64px', marginBottom: '24px' }}>🛒</div>
-        <h2 className="empty-cart-title" style={{ color: colors.text, marginBottom: '12px', fontSize: '24px' }}>
+        <div className="empty-cart-icon" style={{ 
+          fontSize: window.innerWidth < 499 ? '48px' : '64px', 
+          marginBottom: '20px' 
+        }}>
+          🛒
+        </div>
+        <h2 className="empty-cart-title" style={{ 
+          color: colors.text, 
+          marginBottom: '12px', 
+          fontSize: window.innerWidth < 499 ? '20px' : '24px' 
+        }}>
           Your cart is empty
         </h2>
         <p className="empty-cart-description" style={{ 
           color: colors.textSecondary, 
-          marginBottom: '32px', 
-          fontSize: '16px',
-          maxWidth: '300px',
-          lineHeight: '1.5'
+          marginBottom: '24px', 
+          fontSize: window.innerWidth < 499 ? '14px' : '16px',
+          maxWidth: '280px',
+          lineHeight: '1.4'
         }}>
           Start shopping to add items to your cart
         </p>
@@ -200,24 +230,16 @@ const Cart = ({ onContinueShopping }) => {
           data-testid="continue-shopping-button"
           onClick={onContinueShopping}
           style={{
-            padding: '16px 32px',
+            padding: window.innerWidth < 499 ? '12px 24px' : '16px 32px',
             backgroundColor: colors.primary,
             color: 'white',
             border: 'none',
-            borderRadius: '10px',
-            fontSize: '16px',
+            borderRadius: '8px',
+            fontSize: window.innerWidth < 499 ? '14px' : '16px',
             fontWeight: '700',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 6px 16px rgba(37, 99, 235, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.3)';
           }}
         >
           🛍️ Continue Shopping
@@ -233,6 +255,7 @@ const Cart = ({ onContinueShopping }) => {
       data-testid="cart-container"
       style={styles.container}
     >
+      {/* Cart Header */}
       <div 
         className="cart-header"
         id="cart-header"
@@ -244,7 +267,7 @@ const Cart = ({ onContinueShopping }) => {
           data-testid="cart-title"
           style={styles.title}
         >
-          🛒 Shopping Cart ({cartItems.length} items)
+          🛒 Cart ({cartItems.length})
         </h2>
         
         <button
@@ -262,7 +285,7 @@ const Cart = ({ onContinueShopping }) => {
             e.target.style.color = colors.error;
           }}
         >
-          🗑️ Clear Cart
+          🗑️ Clear
         </button>
       </div>
       
@@ -272,13 +295,14 @@ const Cart = ({ onContinueShopping }) => {
           id="clear-success-message"
           data-testid="clear-message"
           style={{
-            padding: '12px 20px',
+            padding: '10px 16px',
             backgroundColor: colors.success,
             color: 'white',
-            borderRadius: '8px',
-            marginBottom: '20px',
+            borderRadius: '6px',
+            marginBottom: '16px',
             textAlign: 'center',
             fontWeight: '600',
+            fontSize: window.innerWidth < 499 ? '12px' : '14px',
             boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)'
           }}
         >
@@ -287,7 +311,7 @@ const Cart = ({ onContinueShopping }) => {
       )}
       
       {/* Cart Items */}
-      <div className="cart-items" id="cart-items-list" style={{ marginBottom: '30px' }}>
+      <div className="cart-items" id="cart-items-list" style={{ marginBottom: '20px' }}>
         {cartItems.map(item => (
           <div
             key={item.product.id}
@@ -296,34 +320,48 @@ const Cart = ({ onContinueShopping }) => {
             data-testid={`cart-item-${item.product.id}`}
             style={styles.cartItem}
           >
-            <img
-              className="cart-item-image"
-              id={`cart-item-image-${item.product.id}`}
-              src={`https://via.placeholder.com/100x100/e2e8f0/64748b?text=${encodeURIComponent(item.product.name.substring(0, 10))}`}
-              alt={item.product.name}
-              style={styles.itemImage}
-            />
+            <div
+              className="cart-item-icon"
+              id={`cart-item-icon-${item.product.id}`}
+              style={styles.productIcon}
+            >
+              {getCategoryIcon(item.product.category)}
+            </div>
             
             <div className="cart-item-details" style={{ flex: 1, minWidth: 0 }}>
               <h3 
                 className="cart-item-name"
                 id={`cart-item-name-${item.product.id}`}
                 style={{ 
-                  margin: '0 0 8px 0',
+                  margin: '0 0 4px 0',
                   color: colors.text,
-                  fontSize: window.innerWidth < 499 ? '16px' : '18px',
-                  fontWeight: '600'
+                  fontSize: window.innerWidth < 499 ? '14px' : '16px',
+                  fontWeight: '600',
+                  lineHeight: '1.3'
                 }}
               >
                 {item.product.name}
               </h3>
+              
+              <div 
+                className="cart-item-category"
+                style={{
+                  fontSize: window.innerWidth < 499 ? '10px' : '12px',
+                  color: colors.textSecondary,
+                  marginBottom: '6px',
+                  textTransform: 'capitalize'
+                }}
+              >
+                📂 {item.product.category.toLowerCase().replace('_', ' ')}
+              </div>
+              
               <p 
                 className="cart-item-price"
                 id={`cart-item-price-${item.product.id}`}
                 style={{ 
-                  margin: '0 0 16px 0', 
+                  margin: '0 0 12px 0', 
                   color: colors.textSecondary,
-                  fontSize: '16px'
+                  fontSize: window.innerWidth < 499 ? '12px' : '14px'
                 }}
               >
                 {formatPrice(item.product.price)} each
@@ -333,7 +371,7 @@ const Cart = ({ onContinueShopping }) => {
                 className="cart-item-controls"
                 style={{ 
                   display: 'flex', 
-                  gap: '12px', 
+                  gap: '8px', 
                   alignItems: 'center',
                   flexWrap: 'wrap'
                 }}
@@ -390,26 +428,18 @@ const Cart = ({ onContinueShopping }) => {
                     });
                   }}
                   style={{
-                    padding: '8px 16px',
+                    padding: window.innerWidth < 499 ? '6px 10px' : '8px 12px',
                     border: `2px solid ${colors.primary}`,
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     backgroundColor: 'transparent',
                     color: colors.primary,
                     cursor: 'pointer',
-                    fontSize: '14px',
+                    fontSize: window.innerWidth < 499 ? '10px' : '12px',
                     fontWeight: '600',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = colors.primary;
-                    e.target.style.color = 'white';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.color = colors.primary;
-                  }}
                 >
-                  💾 Save for Later
+                  💾 Save
                 </button>
               </div>
             </div>
@@ -422,7 +452,8 @@ const Cart = ({ onContinueShopping }) => {
                 flexDirection: window.innerWidth < 499 ? 'row' : 'column',
                 justifyContent: 'space-between',
                 alignItems: window.innerWidth < 499 ? 'center' : 'flex-end',
-                minWidth: window.innerWidth < 499 ? '100%' : '120px'
+                minWidth: window.innerWidth < 499 ? '100%' : '100px',
+                gap: '8px'
               }}
             >
               <p 
@@ -430,8 +461,8 @@ const Cart = ({ onContinueShopping }) => {
                 id={`item-total-${item.product.id}`}
                 data-testid={`item-total-${item.product.id}`}
                 style={{ 
-                  margin: '0 0 16px 0', 
-                  fontSize: window.innerWidth < 499 ? '18px' : '20px', 
+                  margin: '0', 
+                  fontSize: window.innerWidth < 499 ? '16px' : '18px', 
                   fontWeight: 'bold',
                   color: colors.primary
                 }}
@@ -459,21 +490,15 @@ const Cart = ({ onContinueShopping }) => {
                   });
                 }}
                 style={{
-                  padding: '6px 12px',
+                  padding: '4px 8px',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   backgroundColor: 'transparent',
                   color: colors.error,
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: window.innerWidth < 499 ? '10px' : '12px',
                   fontWeight: '600',
                   transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = `${colors.error}15`;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
                 }}
               >
                 🗑️ Remove
@@ -490,8 +515,8 @@ const Cart = ({ onContinueShopping }) => {
         data-testid="order-summary"
         style={{
           backgroundColor: colors.background,
-          padding: window.innerWidth < 499 ? '20px' : '24px',
-          borderRadius: '12px',
+          padding: window.innerWidth < 499 ? '16px' : '20px',
+          borderRadius: '10px',
           border: `2px solid ${colors.border}`,
           boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
         }}
@@ -500,9 +525,9 @@ const Cart = ({ onContinueShopping }) => {
           className="summary-title"
           id="summary-title"
           style={{ 
-            margin: '0 0 20px 0',
+            margin: '0 0 16px 0',
             color: colors.text,
-            fontSize: '20px',
+            fontSize: window.innerWidth < 499 ? '16px' : '18px',
             fontWeight: '700'
           }}
         >
@@ -514,8 +539,8 @@ const Cart = ({ onContinueShopping }) => {
           style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
-            marginBottom: '12px',
-            fontSize: '16px'
+            marginBottom: '8px',
+            fontSize: window.innerWidth < 499 ? '13px' : '15px'
           }}
         >
           <span style={{ color: colors.text }}>Subtotal:</span>
@@ -534,8 +559,8 @@ const Cart = ({ onContinueShopping }) => {
           style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
-            marginBottom: '12px',
-            fontSize: '16px'
+            marginBottom: '8px',
+            fontSize: window.innerWidth < 499 ? '13px' : '15px'
           }}
         >
           <span style={{ color: colors.text }}>Shipping:</span>
@@ -552,29 +577,15 @@ const Cart = ({ onContinueShopping }) => {
           </span>
         </div>
         
-        {shipping === 0 && (
-          <div 
-            className="free-shipping-note"
-            style={{
-              fontSize: '12px',
-              color: colors.success,
-              marginBottom: '12px',
-              fontWeight: '500'
-            }}
-          >
-            ✅ You qualified for free shipping!
-          </div>
-        )}
-        
         <div 
           className="summary-total"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            marginTop: '20px',
-            paddingTop: '20px',
+            marginTop: '16px',
+            paddingTop: '16px',
             borderTop: `2px solid ${colors.border}`,
-            fontSize: '22px',
+            fontSize: window.innerWidth < 499 ? '18px' : '20px',
             fontWeight: 'bold'
           }}
         >
@@ -595,25 +606,17 @@ const Cart = ({ onContinueShopping }) => {
           data-testid="checkout-button"
           style={{
             width: '100%',
-            padding: '18px',
-            marginTop: '24px',
+            padding: window.innerWidth < 499 ? '14px' : '16px',
+            marginTop: '16px',
             backgroundColor: colors.primary,
             color: 'white',
             border: 'none',
-            borderRadius: '10px',
-            fontSize: '18px',
+            borderRadius: '8px',
+            fontSize: window.innerWidth < 499 ? '15px' : '17px',
             fontWeight: '700',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             boxShadow: '0 4px 16px rgba(37, 99, 235, 0.3)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 16px rgba(37, 99, 235, 0.3)';
           }}
         >
           🚀 Proceed to Checkout
@@ -626,7 +629,7 @@ const Cart = ({ onContinueShopping }) => {
           className="saved-items-section"
           id="saved-items-container"
           data-testid="saved-items-section"
-          style={{ marginTop: '40px' }}
+          style={{ marginTop: '24px' }}
         >
           <button
             className="toggle-saved-btn btn"
@@ -634,19 +637,19 @@ const Cart = ({ onContinueShopping }) => {
             data-testid="toggle-saved-items"
             onClick={() => setShowSaved(!showSaved)}
             style={{
-              padding: '12px 24px',
+              padding: window.innerWidth < 499 ? '8px 16px' : '10px 20px',
               border: `2px solid ${colors.primary}`,
-              borderRadius: '8px',
+              borderRadius: '6px',
               backgroundColor: showSaved ? colors.primary : 'transparent',
               color: showSaved ? 'white' : colors.primary,
               cursor: 'pointer',
-              marginBottom: '20px',
-              fontSize: '16px',
+              marginBottom: '16px',
+              fontSize: window.innerWidth < 499 ? '12px' : '14px',
               fontWeight: '600',
               transition: 'all 0.2s ease'
             }}
           >
-            {showSaved ? '👁️ Hide' : '👁️ Show'} Saved Items ({savedItems.length})
+            {showSaved ? '👁️ Hide' : '👁️ Show'} Saved ({savedItems.length})
           </button>
           
           {showSaved && (
@@ -659,35 +662,42 @@ const Cart = ({ onContinueShopping }) => {
                   data-testid={`saved-item-${item.product.id}`}
                   style={{
                     display: 'flex',
-                    gap: '20px',
-                    padding: '20px',
+                    gap: '12px',
+                    padding: '12px',
                     backgroundColor: colors.background,
-                    borderRadius: '8px',
-                    marginBottom: '12px',
+                    borderRadius: '6px',
+                    marginBottom: '8px',
                     border: `1px solid ${colors.border}`,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                    alignItems: 'center'
                   }}
                 >
-                  <img
-                    className="saved-item-image"
-                    src={`https://via.placeholder.com/80x80/e2e8f0/64748b?text=${encodeURIComponent(item.product.name.substring(0, 8))}`}
-                    alt={item.product.name}
+                  <div
+                    className="saved-item-icon"
                     style={{
-                      width: '80px',
-                      height: '80px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      flexShrink: 0
+                      width: '40px',
+                      height: '40px',
+                      background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+                      borderRadius: '6px',
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      color: colors.primary
                     }}
-                  />
+                  >
+                    {getCategoryIcon(item.product.category)}
+                  </div>
                   
                   <div className="saved-item-details" style={{ flex: 1 }}>
                     <h4 
                       className="saved-item-name"
                       style={{ 
-                        margin: '0 0 8px 0',
+                        margin: '0 0 4px 0',
                         color: colors.text,
-                        fontSize: '16px',
+                        fontSize: window.innerWidth < 499 ? '12px' : '14px',
                         fontWeight: '600'
                       }}
                     >
@@ -698,7 +708,7 @@ const Cart = ({ onContinueShopping }) => {
                       style={{ 
                         margin: 0, 
                         color: colors.textSecondary,
-                        fontSize: '14px'
+                        fontSize: window.innerWidth < 499 ? '11px' : '12px'
                       }}
                     >
                       {formatPrice(item.product.price)}
@@ -717,18 +727,18 @@ const Cart = ({ onContinueShopping }) => {
                       });
                     }}
                     style={{
-                      padding: '8px 16px',
+                      padding: window.innerWidth < 499 ? '6px 10px' : '8px 12px',
                       backgroundColor: colors.primary,
                       color: 'white',
                       border: 'none',
-                      borderRadius: '6px',
+                      borderRadius: '4px',
                       cursor: 'pointer',
-                      fontSize: '14px',
+                      fontSize: window.innerWidth < 499 ? '10px' : '12px',
                       fontWeight: '600',
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    🛒 Move to Cart
+                    🛒 Move
                   </button>
                 </div>
               ))}

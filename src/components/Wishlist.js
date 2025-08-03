@@ -8,7 +8,6 @@ const Wishlist = () => {
   const { addNotification } = useNotifications();
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.items);
-  const products = useSelector((state) => state.products.items);
   
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
@@ -17,44 +16,182 @@ const Wishlist = () => {
     }).format(price);
   };
   
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'ELECTRONICS': '📱',
+      'CLOTHING': '👕',
+      'BOOKS': '📚',
+      'HOME': '🏠',
+      'SPORTS': '⚽'
+    };
+    return icons[category] || '📦';
+  };
+  
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
-    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
     
     return {
       container: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '20px' : '30px',
+        padding: isMobile ? '16px' : '24px',
         borderRadius: '12px',
         border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)'
       },
       emptyContainer: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '40px 20px' : '60px 40px',
+        padding: isMobile ? '30px 16px' : '50px 30px',
         borderRadius: '12px',
         textAlign: 'center',
         border: `1px solid ${colors.border}`,
-        minHeight: '400px',
+        minHeight: '300px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
       },
+      header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: isMobile ? '20px' : '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      },
+      title: {
+        margin: 0,
+        color: colors.text,
+        fontSize: isMobile ? '18px' : '22px',
+        fontWeight: '700'
+      },
       grid: {
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : 
                            isTablet ? 'repeat(2, 1fr)' : 
-                           'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: isMobile ? '16px' : '20px'
+                           'repeat(auto-fill, minmax(260px, 1fr))',
+        gap: isMobile ? '12px' : '16px'
       },
       wishlistItem: {
         backgroundColor: colors.background,
-        padding: isMobile ? '16px' : '20px',
-        borderRadius: '12px',
+        padding: isMobile ? '12px' : '16px',
+        borderRadius: '10px',
         border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
         transition: 'all 0.2s ease'
+      },
+      productIcon: {
+        width: '100%',
+        height: isMobile ? '100px' : '120px',
+        background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+        borderRadius: '8px',
+        marginBottom: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: isMobile ? '32px' : '40px',
+        fontWeight: 'bold',
+        color: colors.primary,
+        position: 'relative',
+        border: `1px solid ${colors.border}`
+      },
+      clearBtn: {
+        padding: isMobile ? '6px 12px' : '8px 16px',
+        border: `2px solid ${colors.textSecondary}`,
+        borderRadius: '6px',
+        backgroundColor: 'transparent',
+        color: colors.textSecondary,
+        cursor: 'pointer',
+        fontSize: isMobile ? '11px' : '13px',
+        fontWeight: '600',
+        transition: 'all 0.2s ease'
+      },
+      productName: {
+        margin: '0 0 8px 0',
+        color: colors.text,
+        fontSize: isMobile ? '14px' : '16px',
+        fontWeight: '600',
+        lineHeight: '1.3',
+        height: isMobile ? '36px' : '42px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical'
+      },
+      category: {
+        fontSize: isMobile ? '10px' : '12px',
+        color: colors.textSecondary,
+        marginBottom: '8px',
+        textTransform: 'capitalize'
+      },
+      rating: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        marginBottom: '8px'
+      },
+      price: {
+        color: colors.primary,
+        fontWeight: 'bold',
+        marginBottom: '12px',
+        fontSize: isMobile ? '16px' : '18px'
+      },
+      originalPrice: {
+        fontSize: isMobile ? '12px' : '14px',
+        textDecoration: 'line-through',
+        color: colors.textSecondary,
+        marginLeft: '8px'
+      },
+      notes: {
+        fontSize: isMobile ? '11px' : '12px',
+        color: colors.textSecondary,
+        fontStyle: 'italic',
+        marginBottom: '12px',
+        padding: '6px 8px',
+        backgroundColor: colors.surface,
+        borderRadius: '4px',
+        border: `1px solid ${colors.border}`,
+        lineHeight: '1.3'
+      },
+      addedDate: {
+        fontSize: isMobile ? '9px' : '10px',
+        color: colors.textSecondary,
+        marginBottom: '12px'
+      },
+      actions: {
+        display: 'flex',
+        gap: '8px',
+        flexDirection: isMobile ? 'column' : 'row'
+      },
+      addToCartBtn: {
+        flex: 1,
+        padding: isMobile ? '10px 12px' : '12px 16px',
+        backgroundColor: colors.primary,
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: isMobile ? '12px' : '14px',
+        fontWeight: '600',
+        transition: 'all 0.2s ease',
+        minHeight: '36px'
+      },
+      removeBtn: {
+        padding: isMobile ? '10px' : '12px',
+        border: `2px solid ${colors.error}`,
+        borderRadius: '6px',
+        backgroundColor: 'transparent',
+        color: colors.error,
+        cursor: 'pointer',
+        fontSize: isMobile ? '12px' : '14px',
+        fontWeight: '600',
+        transition: 'all 0.2s ease',
+        minWidth: isMobile ? '100%' : '44px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }
     };
   };
@@ -69,20 +206,25 @@ const Wishlist = () => {
         data-testid="empty-wishlist"
         style={styles.emptyContainer}
       >
-        <div className="empty-wishlist-icon" style={{ fontSize: '64px', marginBottom: '24px' }}>❤️</div>
+        <div className="empty-wishlist-icon" style={{ 
+          fontSize: window.innerWidth < 499 ? '48px' : '64px', 
+          marginBottom: '20px' 
+        }}>
+          ❤️
+        </div>
         <h2 className="empty-wishlist-title" style={{ 
           color: colors.text, 
           marginBottom: '12px',
-          fontSize: '24px',
+          fontSize: window.innerWidth < 499 ? '20px' : '24px',
           fontWeight: '700'
         }}>
           Your wishlist is empty
         </h2>
         <p className="empty-wishlist-description" style={{ 
           color: colors.textSecondary,
-          fontSize: '16px',
-          maxWidth: '300px',
-          lineHeight: '1.5'
+          fontSize: window.innerWidth < 499 ? '14px' : '16px',
+          maxWidth: '280px',
+          lineHeight: '1.4'
         }}>
           Save items you love for later and never lose track of them
         </p>
@@ -100,27 +242,15 @@ const Wishlist = () => {
       <div 
         className="wishlist-header"
         id="wishlist-header"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '30px',
-          flexWrap: 'wrap',
-          gap: '16px'
-        }}
+        style={styles.header}
       >
         <h2 
           className="wishlist-title"
           id="wishlist-title"
           data-testid="wishlist-title"
-          style={{ 
-            margin: 0,
-            color: colors.text,
-            fontSize: window.innerWidth < 499 ? '20px' : '24px',
-            fontWeight: '700'
-          }}
+          style={styles.title}
         >
-          ❤️ My Wishlist ({wishlistItems.length} items)
+          ❤️ Wishlist ({wishlistItems.length})
         </h2>
         
         {wishlistItems.length > 1 && (
@@ -137,17 +267,7 @@ const Wishlist = () => {
                 type: 'info'
               });
             }}
-            style={{
-              padding: '8px 16px',
-              border: `2px solid ${colors.textSecondary}`,
-              borderRadius: '8px',
-              backgroundColor: 'transparent',
-              color: colors.textSecondary,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600',
-              transition: 'all 0.2s ease'
-            }}
+            style={styles.clearBtn}
             onMouseEnter={(e) => {
               e.target.style.borderColor = colors.error;
               e.target.style.color = colors.error;
@@ -184,39 +304,26 @@ const Wishlist = () => {
               e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.05)';
             }}
           >
-            {/* Product Image */}
+            {/* Product Icon */}
             <div 
-              className="wishlist-item-image-container"
-              style={{
-                position: 'relative',
-                marginBottom: '16px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                height: '200px',
-                backgroundColor: colors.surface
-              }}
+              className="wishlist-item-icon-container"
+              style={styles.productIcon}
             >
-              <img
-                className="wishlist-item-image"
-                src={`https://via.placeholder.com/280x200/e2e8f0/64748b?text=${encodeURIComponent(item.product.name.substring(0, 12))}`}
-                alt={item.product.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-              />
+              <div className="product-category-icon">
+                {getCategoryIcon(item.product.category)}
+              </div>
               
               {/* Priority Badge */}
               <div 
                 className={`priority-badge priority-${item.priority}`}
+                id={`priority-badge-${item.product.id}`}
                 style={{
                   position: 'absolute',
-                  top: '8px',
-                  left: '8px',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '10px',
+                  top: '6px',
+                  left: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '8px',
+                  fontSize: window.innerWidth < 499 ? '8px' : '9px',
                   fontWeight: 'bold',
                   textTransform: 'uppercase',
                   backgroundColor: item.priority === 'high' ? colors.error : 
@@ -224,62 +331,63 @@ const Wishlist = () => {
                   color: item.priority === 'medium' ? 'black' : 'white'
                 }}
               >
-                {item.priority} priority
+                {item.priority}
               </div>
               
               {/* Stock Status */}
               <div 
                 className="stock-status"
+                id={`stock-status-${item.product.id}`}
                 style={{
                   position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '10px',
+                  top: '6px',
+                  right: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '8px',
+                  fontSize: window.innerWidth < 499 ? '8px' : '9px',
                   fontWeight: 'bold',
                   backgroundColor: item.product.stock > 0 ? colors.success : colors.error,
                   color: 'white'
                 }}
               >
-                {item.product.stock > 0 ? `${item.product.stock} in stock` : 'Out of stock'}
+                {item.product.stock > 0 ? `${item.product.stock}` : '0'}
               </div>
             </div>
             
             {/* Product Info */}
-            <div className="wishlist-item-info">
+            <div className="wishlist-item-info" id={`wishlist-info-${item.product.id}`}>
               <h4 
                 className="wishlist-item-name"
                 id={`wishlist-item-name-${item.product.id}`}
-                style={{ 
-                  margin: '0 0 8px 0',
-                  color: colors.text,
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  lineHeight: '1.3',
-                  height: '40px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
+                style={styles.productName}
               >
                 {item.product.name}
               </h4>
               
+              {/* Category */}
+              <div 
+                className="wishlist-item-category"
+                style={styles.category}
+              >
+                📂 {item.product.category.toLowerCase().replace('_', ' ')}
+              </div>
+              
               {/* Rating */}
               <div 
                 className="wishlist-item-rating"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '8px'
-                }}
+                style={styles.rating}
               >
-                <div style={{ color: colors.warning, fontSize: '12px' }}>
+                <div style={{ 
+                  color: colors.warning, 
+                  fontSize: window.innerWidth < 499 ? '11px' : '12px' 
+                }}>
                   {'★'.repeat(Math.floor(item.product.rating))}
                   {'☆'.repeat(5 - Math.floor(item.product.rating))}
                 </div>
-                <span style={{ fontSize: '12px', color: colors.textSecondary }}>
+                <span style={{ 
+                  fontSize: window.innerWidth < 499 ? '9px' : '10px', 
+                  color: colors.textSecondary 
+                }}>
                   ({item.product.reviewsCount})
                 </span>
               </div>
@@ -287,22 +395,13 @@ const Wishlist = () => {
               <p 
                 className="wishlist-item-price"
                 id={`wishlist-item-price-${item.product.id}`}
-                style={{ 
-                  color: colors.primary, 
-                  fontWeight: 'bold', 
-                  marginBottom: '16px',
-                  fontSize: '20px'
-                }}
+                style={styles.price}
               >
                 {formatPrice(item.product.price)}
                 {item.product.originalPrice && (
                   <span 
-                    style={{ 
-                      fontSize: '14px',
-                      textDecoration: 'line-through',
-                      color: colors.textSecondary,
-                      marginLeft: '8px'
-                    }}
+                    className="wishlist-original-price"
+                    style={styles.originalPrice}
                   >
                     {formatPrice(item.product.originalPrice)}
                   </span>
@@ -313,16 +412,8 @@ const Wishlist = () => {
               {item.notes && (
                 <p 
                   className="wishlist-item-notes"
-                  style={{
-                    fontSize: '12px',
-                    color: colors.textSecondary,
-                    fontStyle: 'italic',
-                    marginBottom: '16px',
-                    padding: '8px',
-                    backgroundColor: colors.surface,
-                    borderRadius: '4px',
-                    border: `1px solid ${colors.border}`
-                  }}
+                  id={`wishlist-notes-${item.product.id}`}
+                  style={styles.notes}
                 >
                   💭 {item.notes}
                 </p>
@@ -331,24 +422,21 @@ const Wishlist = () => {
               {/* Added Date */}
               <p 
                 className="wishlist-added-date"
-                style={{
-                  fontSize: '11px',
-                  color: colors.textSecondary,
-                  marginBottom: '16px'
-                }}
+                style={styles.addedDate}
               >
-                Added on {new Date(item.addedAt).toLocaleDateString()}
+                Added {new Date(item.addedAt).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: window.innerWidth >= 499 ? 'numeric' : '2-digit'
+                })}
               </p>
             </div>
             
             {/* Actions */}
             <div 
               className="wishlist-item-actions"
-              style={{ 
-                display: 'flex', 
-                gap: '8px',
-                flexDirection: window.innerWidth < 499 ? 'column' : 'row'
-              }}
+              id={`wishlist-actions-${item.product.id}`}
+              style={styles.actions}
             >
               <button
                 className="add-to-cart-wishlist-btn btn"
@@ -371,17 +459,10 @@ const Wishlist = () => {
                 }}
                 disabled={item.product.stock === 0}
                 style={{
-                  flex: 1,
-                  padding: '12px 16px',
+                  ...styles.addToCartBtn,
                   backgroundColor: item.product.stock === 0 ? colors.textSecondary : colors.primary,
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: item.product.stock === 0 ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  opacity: item.product.stock === 0 ? 0.6 : 1
+                  opacity: item.product.stock === 0 ? 0.6 : 1,
+                  cursor: item.product.stock === 0 ? 'not-allowed' : 'pointer'
                 }}
                 onMouseEnter={(e) => {
                   if (item.product.stock > 0) {
@@ -410,21 +491,7 @@ const Wishlist = () => {
                     type: 'info'
                   });
                 }}
-                style={{
-                  padding: '12px',
-                  border: `2px solid ${colors.error}`,
-                  borderRadius: '8px',
-                  backgroundColor: 'transparent',
-                  color: colors.error,
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  minWidth: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                style={styles.removeBtn}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = colors.error;
                   e.target.style.color = 'white';
@@ -434,7 +501,7 @@ const Wishlist = () => {
                   e.target.style.color = colors.error;
                 }}
               >
-                🗑️
+                {window.innerWidth < 499 ? '🗑️ Remove' : '🗑️'}
               </button>
             </div>
           </div>

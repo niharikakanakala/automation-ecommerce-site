@@ -32,30 +32,32 @@ const SearchAndFilter = () => {
   }, [localSearch, debouncedSearch]);
   
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
-    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
     
     return {
       container: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '16px' : '24px',
+        padding: isMobile ? '12px' : '20px',
         borderRadius: '12px',
-        marginBottom: '24px',
+        marginBottom: isMobile ? '16px' : '20px',
         border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
       },
       searchControls: {
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr auto' : '1fr auto auto',
-        gap: isMobile ? '12px' : '16px',
+        gridTemplateColumns: isMobile ? '1fr' : 
+                           isTablet ? '1fr auto' : '1fr auto auto',
+        gap: isMobile ? '8px' : '12px',
         alignItems: 'center'
       },
       searchInput: {
         width: '100%',
-        padding: isMobile ? '12px 16px' : '14px 18px',
+        padding: isMobile ? '10px 12px' : '12px 16px',
         border: `2px solid ${colors.border}`,
-        borderRadius: '10px',
-        fontSize: isMobile ? '15px' : '16px',
+        borderRadius: '8px',
+        fontSize: isMobile ? '14px' : '16px',
         backgroundColor: colors.background,
         color: colors.text,
         outline: 'none',
@@ -64,36 +66,98 @@ const SearchAndFilter = () => {
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       },
       select: {
-        padding: isMobile ? '12px 16px' : '14px 18px',
+        padding: isMobile ? '10px 12px' : '12px 16px',
         border: `2px solid ${colors.border}`,
-        borderRadius: '10px',
+        borderRadius: '8px',
         backgroundColor: colors.background,
         color: colors.text,
         cursor: 'pointer',
-        fontSize: isMobile ? '14px' : '16px',
+        fontSize: isMobile ? '12px' : '14px',
         fontWeight: '500',
-        minWidth: isMobile ? '100%' : '200px',
+        minWidth: isMobile ? '100%' : '160px',
         outline: 'none',
         transition: 'all 0.2s ease',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       },
       filterBtn: {
-        padding: isMobile ? '12px 20px' : '14px 24px',
+        padding: isMobile ? '10px 16px' : '12px 20px',
         border: `2px solid ${colors.primary}`,
-        borderRadius: '10px',
+        borderRadius: '8px',
         backgroundColor: showAdvancedFilters ? colors.primary : 'transparent',
         color: showAdvancedFilters ? 'white' : colors.primary,
         cursor: 'pointer',
-        fontSize: isMobile ? '14px' : '16px',
+        fontSize: isMobile ? '12px' : '14px',
         fontWeight: '700',
         transition: 'all 0.2s ease',
         whiteSpace: 'nowrap',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '6px',
         justifyContent: 'center',
-        minHeight: '48px',
+        minHeight: '40px',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      },
+      advancedFilters: {
+        marginTop: '16px',
+        padding: isMobile ? '12px' : '20px',
+        border: `2px solid ${colors.border}`,
+        borderRadius: '8px',
+        backgroundColor: colors.background,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+      },
+      filterGrid: {
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 
+                           isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+        gap: isMobile ? '16px' : '20px'
+      },
+      filterSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      },
+      filterLabel: {
+        display: 'block',
+        marginBottom: '8px',
+        fontWeight: '700',
+        color: colors.text,
+        fontSize: isMobile ? '14px' : '16px'
+      },
+      checkboxLabel: {
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+        color: colors.text,
+        fontSize: isMobile ? '12px' : '14px',
+        fontWeight: '500',
+        padding: '2px 0',
+        gap: '8px'
+      },
+      checkbox: {
+        width: '16px',
+        height: '16px',
+        accentColor: colors.primary,
+        cursor: 'pointer'
+      },
+      priceSlider: {
+        width: '100%',
+        marginBottom: '8px',
+        height: '6px',
+        borderRadius: '3px',
+        outline: 'none',
+        accentColor: colors.primary,
+        cursor: 'pointer'
+      },
+      resetBtn: {
+        padding: isMobile ? '8px 16px' : '10px 20px',
+        border: `2px solid ${colors.textSecondary}`,
+        borderRadius: '8px',
+        backgroundColor: 'transparent',
+        color: colors.textSecondary,
+        cursor: 'pointer',
+        fontSize: isMobile ? '12px' : '14px',
+        fontWeight: '600',
+        transition: 'all 0.2s ease'
       }
     };
   };
@@ -104,6 +168,7 @@ const SearchAndFilter = () => {
     <div 
       className="search-filter-container card"
       id="search-filter-section"
+      data-testid="search-filter-container"
       style={styles.container}
     >
       <div 
@@ -148,12 +213,12 @@ const SearchAndFilter = () => {
             e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
           }}
         >
-          <option value={SortBy.POPULARITY_DESC}>🔥 Most Popular</option>
-          <option value={SortBy.PRICE_ASC}>💰 Price: Low to High</option>
-          <option value={SortBy.PRICE_DESC}>💸 Price: High to Low</option>
-          <option value={SortBy.RATING_DESC}>⭐ Highest Rated</option>
-          <option value={SortBy.NAME_ASC}>🔤 Name: A to Z</option>
-          <option value={SortBy.NAME_DESC}>🔤 Name: Z to A</option>
+          <option value={SortBy.POPULARITY_DESC}>🔥 Popular</option>
+          <option value={SortBy.PRICE_ASC}>💰 Low Price</option>
+          <option value={SortBy.PRICE_DESC}>💸 High Price</option>
+          <option value={SortBy.RATING_DESC}>⭐ Top Rated</option>
+          <option value={SortBy.NAME_ASC}>🔤 A to Z</option>
+          <option value={SortBy.NAME_DESC}>🔤 Z to A</option>
         </select>
         
         <button
@@ -176,7 +241,7 @@ const SearchAndFilter = () => {
           }}
         >
           <span>🔧</span>
-          <span>{window.innerWidth >= 499 ? 'Advanced Filters' : 'Filters'}</span>
+          <span>{window.innerWidth >= 499 ? 'Filters' : 'Filter'}</span>
         </button>
       </div>
       
@@ -185,53 +250,27 @@ const SearchAndFilter = () => {
           className="advanced-filters animate-fadeIn"
           id="advanced-filters-panel"
           data-testid="advanced-filters-panel"
-          style={{
-            marginTop: '24px',
-            padding: window.innerWidth < 499 ? '16px' : '24px',
-            border: `2px solid ${colors.border}`,
-            borderRadius: '12px',
-            backgroundColor: colors.background,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}
+          style={styles.advancedFilters}
         >
           <div 
             className="filter-grid"
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: window.innerWidth < 499 ? '1fr' : 
-                                  window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-              gap: window.innerWidth < 499 ? '20px' : '24px'
-            }}
+            style={styles.filterGrid}
           >
             {/* Categories Filter */}
-            <div className="category-filter" id="category-filter-section">
+            <div className="category-filter" id="category-filter-section" style={styles.filterSection}>
               <label 
                 className="filter-label"
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '16px', 
-                  fontWeight: '700',
-                  color: colors.text,
-                  fontSize: '16px'
-                }}
+                style={styles.filterLabel}
               >
                 📂 Categories
               </label>
-              <div className="category-checkboxes" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="category-checkboxes" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {Object.values(Category).map(cat => (
                   <label 
                     key={cat} 
                     className="checkbox-label"
                     id={`category-label-${cat.toLowerCase()}`}
-                    style={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      color: colors.text,
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      padding: '4px 0'
-                    }}
+                    style={styles.checkboxLabel}
                   >
                     <input
                       className="category-checkbox"
@@ -250,12 +289,7 @@ const SearchAndFilter = () => {
                           }));
                         }
                       }}
-                      style={{ 
-                        marginRight: '12px',
-                        width: '18px',
-                        height: '18px',
-                        accentColor: colors.primary
-                      }}
+                      style={styles.checkbox}
                     />
                     <span>{cat.replace('_', ' ')}</span>
                   </label>
@@ -264,16 +298,10 @@ const SearchAndFilter = () => {
             </div>
             
             {/* Price Range Filter */}
-            <div className="price-filter" id="price-filter-section">
+            <div className="price-filter" id="price-filter-section" style={styles.filterSection}>
               <label 
                 className="filter-label"
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '16px', 
-                  fontWeight: '700',
-                  color: colors.text,
-                  fontSize: '16px'
-                }}
+                style={styles.filterLabel}
               >
                 💰 Price Range
               </label>
@@ -289,14 +317,9 @@ const SearchAndFilter = () => {
                   onChange={(e) => dispatch(updateFilters({ 
                     priceRange: { ...filters.priceRange, max: parseInt(e.target.value) }
                   }))}
-                  style={{ 
-                    width: '100%',
-                    marginBottom: '12px',
-                    height: '6px',
-                    borderRadius: '3px',
-                    background: `linear-gradient(to right, ${colors.primary} 0%, ${colors.primary} ${(filters.priceRange.max/1000)*100}%, ${colors.border} ${(filters.priceRange.max/1000)*100}%, ${colors.border} 100%)`,
-                    outline: 'none',
-                    accentColor: colors.primary
+                  style={{
+                    ...styles.priceSlider,
+                    background: `linear-gradient(to right, ${colors.primary} 0%, ${colors.primary} ${(filters.priceRange.max/1000)*100}%, ${colors.border} ${(filters.priceRange.max/1000)*100}%, ${colors.border} 100%)`
                   }}
                 />
                 <div 
@@ -304,7 +327,7 @@ const SearchAndFilter = () => {
                   style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between',
-                    fontSize: '14px',
+                    fontSize: window.innerWidth < 499 ? '12px' : '14px',
                     fontWeight: '600',
                     color: colors.textSecondary
                   }}
@@ -316,31 +339,18 @@ const SearchAndFilter = () => {
             </div>
             
             {/* Other Filters */}
-            <div className="other-filters" id="other-filters-section">
+            <div className="other-filters" id="other-filters-section" style={styles.filterSection}>
               <label 
                 className="filter-label"
-                style={{ 
-                  display: 'block', 
-                  marginBottom: '16px', 
-                  fontWeight: '700',
-                  color: colors.text,
-                  fontSize: '16px'
-                }}
+                style={styles.filterLabel}
               >
                 ⚙️ Other Filters
               </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label 
                   className="checkbox-label"
                   id="stock-filter-label"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    color: colors.text,
-                    fontSize: '14px',
-                    fontWeight: '500'
-                  }}
+                  style={styles.checkboxLabel}
                 >
                   <input
                     className="stock-checkbox"
@@ -349,12 +359,7 @@ const SearchAndFilter = () => {
                     type="checkbox"
                     checked={filters.inStock}
                     onChange={(e) => dispatch(updateFilters({ inStock: e.target.checked }))}
-                    style={{ 
-                      marginRight: '12px',
-                      width: '18px',
-                      height: '18px',
-                      accentColor: colors.primary
-                    }}
+                    style={styles.checkbox}
                   />
                   <span>📦 In Stock Only</span>
                 </label>
@@ -366,7 +371,7 @@ const SearchAndFilter = () => {
                       display: 'flex',
                       alignItems: 'center',
                       color: colors.text,
-                      fontSize: '14px',
+                      fontSize: window.innerWidth < 499 ? '12px' : '14px',
                       fontWeight: '500',
                       gap: '8px'
                     }}
@@ -379,12 +384,12 @@ const SearchAndFilter = () => {
                       value={filters.minRating}
                       onChange={(e) => dispatch(updateFilters({ minRating: parseFloat(e.target.value) }))}
                       style={{ 
-                        padding: '6px 12px',
+                        padding: '4px 8px',
                         border: `2px solid ${colors.border}`,
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         backgroundColor: colors.background,
                         color: colors.text,
-                        fontSize: '14px',
+                        fontSize: window.innerWidth < 499 ? '11px' : '13px',
                         fontWeight: '500',
                         outline: 'none',
                         cursor: 'pointer'
@@ -402,23 +407,13 @@ const SearchAndFilter = () => {
           </div>
           
           {/* Reset Filters Button */}
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
             <button
               className="reset-filters-btn btn"
               id="reset-filters"
               data-testid="reset-filters-button"
               onClick={() => dispatch({ type: 'RESET_FILTERS' })}
-              style={{
-                padding: '10px 20px',
-                border: `2px solid ${colors.textSecondary}`,
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                color: colors.textSecondary,
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease'
-              }}
+              style={styles.resetBtn}
               onMouseEnter={(e) => {
                 e.target.style.borderColor = colors.error;
                 e.target.style.color = colors.error;

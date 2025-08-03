@@ -75,56 +75,60 @@ const ProductList = () => {
   }, [products, filters, sortBy]);
   
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
-    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
     
     return {
       container: {
-        marginBottom: '32px'
+        marginBottom: isMobile ? '20px' : '32px'
       },
       header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
+        marginBottom: isMobile ? '16px' : '24px',
         flexWrap: 'wrap',
-        gap: '16px'
+        gap: '12px',
+        padding: isMobile ? '0 4px' : '0'
       },
       title: {
         margin: 0,
         color: colors.text,
-        fontSize: isMobile ? '20px' : '24px',
+        fontSize: isMobile ? '18px' : '24px',
         fontWeight: '700'
       },
       viewToggle: {
         display: 'flex',
-        gap: '8px',
-        padding: '4px',
+        gap: '4px',
+        padding: '2px',
         backgroundColor: colors.surface,
-        borderRadius: '10px',
+        borderRadius: '8px',
         border: `2px solid ${colors.border}`
       },
       viewBtn: (active) => ({
-        padding: isMobile ? '8px 12px' : '10px 16px',
+        padding: isMobile ? '6px 10px' : '8px 16px',
         border: 'none',
         borderRadius: '6px',
         backgroundColor: active ? colors.primary : 'transparent',
         color: active ? 'white' : colors.text,
         cursor: 'pointer',
-        fontSize: '14px',
+        fontSize: isMobile ? '12px' : '14px',
         fontWeight: '600',
         transition: 'all 0.2s ease',
         display: 'flex',
         alignItems: 'center',
-        gap: '6px'
+        gap: '4px',
+        minWidth: isMobile ? '50px' : '70px',
+        justifyContent: 'center'
       }),
       grid: {
         display: 'grid',
-        gap: isMobile ? '16px' : '20px'
+        gap: isMobile ? '12px' : '16px'
       },
       noProducts: {
         textAlign: 'center',
-        padding: isMobile ? '40px 20px' : '60px 20px',
+        padding: isMobile ? '40px 16px' : '60px 20px',
         backgroundColor: colors.surface,
         borderRadius: '12px',
         border: `1px solid ${colors.border}`
@@ -138,7 +142,8 @@ const ProductList = () => {
     if (viewMode === 'list') return '1fr';
     
     const width = window.innerWidth;
-    if (width < 499) return '1fr';
+    if (width < 400) return '1fr';
+    if (width < 499) return 'repeat(2, 1fr)';
     if (width < 768) return 'repeat(2, 1fr)';
     if (width < 1024) return 'repeat(3, 1fr)';
     return 'repeat(4, 1fr)';
@@ -148,10 +153,12 @@ const ProductList = () => {
     <div 
       className="product-list-container"
       id="products-section"
+      data-testid="product-list-container"
       style={styles.container}
     >
       <div 
         className="product-list-header"
+        id="product-list-header"
         style={styles.header}
       >
         <h2 
@@ -160,12 +167,13 @@ const ProductList = () => {
           data-testid="products-count"
           style={styles.title}
         >
-          Products ({filteredProducts.length} results)
+          Products ({filteredProducts.length})
         </h2>
         
         <div 
           className="view-toggle"
           id="view-toggle-controls"
+          data-testid="view-toggle"
           style={styles.viewToggle}
         >
           <button
@@ -199,8 +207,19 @@ const ProductList = () => {
           style={styles.noProducts}
         >
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-          <h3 style={{ color: colors.text, marginBottom: '8px' }}>No products found</h3>
-          <p style={{ color: colors.textSecondary, fontSize: '16px' }}>
+          <h3 style={{ 
+            color: colors.text, 
+            marginBottom: '8px',
+            fontSize: window.innerWidth < 499 ? '18px' : '24px'
+          }}>
+            No products found
+          </h3>
+          <p style={{ 
+            color: colors.textSecondary, 
+            fontSize: window.innerWidth < 499 ? '14px' : '16px',
+            maxWidth: '300px',
+            margin: '0 auto'
+          }}>
             Try adjusting your filters or search query
           </p>
         </div>

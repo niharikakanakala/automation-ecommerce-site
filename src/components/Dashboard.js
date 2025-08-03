@@ -23,20 +23,53 @@ export const Dashboard = () => {
     setActiveTab('shop');
   };
   
-  const getTabButtonStyle = (tabName) => ({
-    padding: window.innerWidth < 499 ? '8px 16px' : '12px 24px',
-    border: 'none',
-    backgroundColor: 'transparent',
-    color: activeTab === tabName ? colors.primary : colors.textSecondary,
-    borderBottom: activeTab === tabName ? `3px solid ${colors.primary}` : '3px solid transparent',
-    cursor: 'pointer',
-    fontSize: window.innerWidth < 499 ? '14px' : '16px',
-    fontWeight: activeTab === tabName ? '700' : '500',
-    transition: 'all 0.3s ease',
-    borderRadius: '4px 4px 0 0',
-    minWidth: window.innerWidth < 499 ? '80px' : '100px',
-    textAlign: 'center'
-  });
+  const getResponsiveStyles = () => {
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
+    
+    return {
+      container: {
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: isMobile ? '8px' : isTablet ? '12px' : '20px'
+      },
+      tabNavigation: {
+        display: 'flex',
+        gap: isMobile ? '2px' : '4px',
+        marginBottom: isMobile ? '16px' : '24px',
+        borderBottom: `2px solid ${colors.border}`,
+        paddingBottom: '0',
+        overflowX: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        backgroundColor: colors.surface,
+        borderRadius: '8px 8px 0 0',
+        padding: isMobile ? '4px' : '8px'
+      },
+      tabButton: (isActive) => ({
+        flex: 1,
+        padding: isMobile ? '8px 12px' : '12px 20px',
+        border: 'none',
+        backgroundColor: isActive ? colors.primary : 'transparent',
+        color: isActive ? 'white' : colors.textSecondary,
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: isMobile ? '12px' : '14px',
+        fontWeight: isActive ? '700' : '500',
+        transition: 'all 0.2s ease',
+        minWidth: isMobile ? '60px' : '80px',
+        textAlign: 'center',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '4px'
+      })
+    };
+  };
+  
+  const styles = getResponsiveStyles();
   
   return (
     <div className="dashboard-container" id="dashboard-main">
@@ -44,60 +77,89 @@ export const Dashboard = () => {
       
       <div 
         className="dashboard-content container"
-        style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: window.innerWidth < 499 ? '16px 12px' : window.innerWidth < 768 ? '20px 16px' : '24px 20px'
-        }}
+        style={styles.container}
       >
         {/* Tab Navigation */}
         <div 
           className="tab-navigation"
           id="main-navigation"
-          style={{
-            display: 'flex',
-            gap: window.innerWidth < 499 ? '4px' : '8px',
-            marginBottom: '24px',
-            borderBottom: `1px solid ${colors.border}`,
-            paddingBottom: '0',
-            overflowX: 'auto',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
+          data-testid="main-navigation"
+          style={styles.tabNavigation}
         >
           <button
-            className={`tab-btn ${activeTab === 'shop' ? 'tab-active' : ''}`}
+            className={`tab-btn shop-tab ${activeTab === 'shop' ? 'tab-active' : ''}`}
             id="shop-tab-btn"
             data-testid="shop-tab"
             onClick={() => setActiveTab('shop')}
-            style={getTabButtonStyle('shop')}
+            style={styles.tabButton(activeTab === 'shop')}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'shop') {
+                e.target.style.backgroundColor = colors.border;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'shop') {
+                e.target.style.backgroundColor = 'transparent';
+              }
+            }}
           >
-            🛍️ Shop
+            <span>🛍️</span>
+            {window.innerWidth >= 499 && <span>Shop</span>}
           </button>
           
           <button
-            className={`tab-btn ${activeTab === 'cart' ? 'tab-active' : ''}`}
+            className={`tab-btn cart-tab ${activeTab === 'cart' ? 'tab-active' : ''}`}
             id="cart-tab-btn"
             data-testid="cart-tab"
             onClick={() => setActiveTab('cart')}
-            style={getTabButtonStyle('cart')}
+            style={styles.tabButton(activeTab === 'cart')}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'cart') {
+                e.target.style.backgroundColor = colors.border;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'cart') {
+                e.target.style.backgroundColor = 'transparent';
+              }
+            }}
           >
-            🛒 Cart
+            <span>🛒</span>
+            {window.innerWidth >= 499 && <span>Cart</span>}
           </button>
           
           <button
-            className={`tab-btn ${activeTab === 'wishlist' ? 'tab-active' : ''}`}
+            className={`tab-btn wishlist-tab ${activeTab === 'wishlist' ? 'tab-active' : ''}`}
             id="wishlist-tab-btn"
             data-testid="wishlist-tab"
             onClick={() => setActiveTab('wishlist')}
-            style={getTabButtonStyle('wishlist')}
+            style={styles.tabButton(activeTab === 'wishlist')}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'wishlist') {
+                e.target.style.backgroundColor = colors.border;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'wishlist') {
+                e.target.style.backgroundColor = 'transparent';
+              }
+            }}
           >
-            ❤️ Wishlist
+            <span>❤️</span>
+            {window.innerWidth >= 499 && <span>Wishlist</span>}
           </button>
         </div>
         
         {/* Content Area */}
-        <div className="tab-content" id="tab-content-area">
+        <div 
+          className="tab-content" 
+          id="tab-content-area"
+          style={{
+            backgroundColor: colors.background,
+            borderRadius: '0 0 12px 12px',
+            minHeight: '400px'
+          }}
+        >
           {activeTab === 'shop' && (
             <div className="shop-content" id="shop-section">
               <SearchAndFilter />

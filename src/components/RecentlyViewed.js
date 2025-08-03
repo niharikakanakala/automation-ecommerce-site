@@ -1,11 +1,12 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addRecentlyViewed } from '../store';
-import { useTheme, useAnalytics } from '../App';
+import { addRecentlyViewed, clearRecentlyViewed } from '../store';
+import { useTheme, useAnalytics, useNotifications } from '../App';
 
 const RecentlyViewed = () => {
   const { colors } = useTheme();
   const { trackEvent } = useAnalytics();
+  const { addNotification } = useNotifications();
   const dispatch = useDispatch();
   const recentlyViewed = useSelector((state) => state.user.recentlyViewed);
   const products = useSelector((state) => state.products.items);
@@ -22,63 +23,134 @@ const RecentlyViewed = () => {
     }).format(price);
   };
   
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'ELECTRONICS': '📱',
+      'CLOTHING': '👕',
+      'BOOKS': '📚',
+      'HOME': '🏠',
+      'SPORTS': '⚽'
+    };
+    return icons[category] || '📦';
+  };
+  
+  const handleClearHistory = () => {
+    dispatch(clearRecentlyViewed());
+    trackEvent('clear_recent_history');
+    addNotification({
+      message: 'Recent viewing history cleared',
+      type: 'info'
+    });
+  };
+  
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isVerySmall = width < 400;
     
     return {
       container: {
         backgroundColor: colors.surface,
-        padding: isMobile ? '16px' : '20px',
-        borderRadius: '12px',
-        marginTop: '32px',
+        padding: isMobile ? '12px' : '16px',
+        borderRadius: '10px',
+        marginTop: isMobile ? '16px' : '24px',
         border: `1px solid ${colors.border}`,
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
       },
+      header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '12px'
+      },
       title: {
-        margin: '0 0 20px 0',
+        margin: '0',
         color: colors.text,
-        fontSize: isMobile ? '18px' : '20px',
+        fontSize: isMobile ? '16px' : '18px',
         fontWeight: '700'
+      },
+      clearBtn: {
+        padding: isMobile ? '4px 8px' : '6px 12px',
+        border: 'none',
+        borderRadius: '4px',
+        backgroundColor: 'transparent',
+        color: colors.textSecondary,
+        cursor: 'pointer',
+        fontSize: isMobile ? '10px' : '12px',
+        fontWeight: '500',
+        transition: 'all 0.2s ease'
       },
       scrollContainer: {
         display: 'flex',
-        gap: isMobile ? '12px' : '16px',
+        gap: isMobile ? '6px' : '12px',
         overflowX: 'auto',
-        paddingBottom: '12px',
+        paddingBottom: '8px',
         scrollbarWidth: 'thin',
         scrollbarColor: `${colors.border} transparent`
       },
       productItem: {
-        minWidth: isMobile ? '140px' : '160px',
+        minWidth: isMobile ? '90px' : '120px',
         textAlign: 'center',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
-        padding: '8px',
-        borderRadius: '8px'
+        padding: '4px',
+        borderRadius: '6px',
+        flexShrink: 0
       },
-      productImage: {
-        width: isMobile ? '120px' : '140px',
-        height: isMobile ? '120px' : '140px',
-        objectFit: 'cover',
-        borderRadius: '8px',
-        marginBottom: '12px',
+      productIcon: {
+        width: isMobile ? '80px' : '110px',
+        height: isMobile ? '60px' : '80px',
+        background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+        borderRadius: '6px',
+        marginBottom: '6px',
         border: `1px solid ${colors.border}`,
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: isMobile ? '18px' : '28px',
+        fontWeight: 'bold',
+        color: colors.primary,
+        position: 'relative'
       },
       productName: {
-        fontSize: isMobile ? '12px' : '14px',
-        margin: '0 0 6px 0',
+        fontSize: isMobile ? '9px' : '12px',
+        margin: '0 0 3px 0',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         color: colors.text,
-        fontWeight: '500'
+        fontWeight: '500',
+        lineHeight: '1.2'
       },
       productPrice: {
-        fontSize: isMobile ? '14px' : '16px',
+        fontSize: isMobile ? '11px' : '14px',
         fontWeight: 'bold',
         color: colors.primary,
         margin: 0
+      },
+      stockBadge: {
+        position: 'absolute',
+        top: '2px',
+        right: '2px',
+        padding: '1px 4px',
+        borderRadius: '6px',
+        fontSize: '7px',
+        fontWeight: 'bold',
+        color: 'white'
+      },
+      category: {
+        fontSize: '8px',
+        color: colors.textSecondary,
+        marginBottom: '2px',
+        textTransform: 'capitalize'
+      },
+      rating: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '2px',
+        marginBottom: '3px'
       }
     };
   };
@@ -96,13 +168,33 @@ const RecentlyViewed = () => {
       data-testid="recently-viewed"
       style={styles.container}
     >
-      <h3 
-        className="recently-viewed-title"
-        id="recently-viewed-title"
-        style={styles.title}
-      >
-        👁️ Recently Viewed
-      </h3>
+      <div style={styles.header}>
+        <h3 
+          className="recently-viewed-title"
+          id="recently-viewed-title"
+          style={styles.title}
+        >
+          👁️ Recently Viewed
+        </h3>
+        
+        <button
+          className="clear-recent-btn"
+          id="clear-recent-history"
+          data-testid="clear-recent-history"
+          onClick={handleClearHistory}
+          style={styles.clearBtn}
+          onMouseEnter={(e) => {
+            e.target.style.color = colors.error;
+            e.target.style.backgroundColor = `${colors.error}10`;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.color = colors.textSecondary;
+            e.target.style.backgroundColor = 'transparent';
+          }}
+        >
+          🗑️ Clear
+        </button>
+      </div>
       
       <div 
         className="recently-viewed-scroll hide-scrollbar"
@@ -122,29 +214,32 @@ const RecentlyViewed = () => {
             }}
             onMouseEnter={(e) => {
               e.target.style.backgroundColor = colors.background;
-              e.target.style.transform = 'translateY(-2px)';
-              const img = e.target.querySelector('.recently-viewed-image');
-              if (img) {
-                img.style.transform = 'scale(1.05)';
-                img.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-              }
+              e.target.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = 'transparent';
               e.target.style.transform = 'translateY(0)';
-              const img = e.target.querySelector('.recently-viewed-image');
-              if (img) {
-                img.style.transform = 'scale(1)';
-                img.style.boxShadow = 'none';
-              }
             }}
           >
-            <img
-              className="recently-viewed-image"
-              src={`https://via.placeholder.com/140x140/e2e8f0/64748b?text=${encodeURIComponent(product.name.substring(0, 12))}`}
-              alt={product.name}
-              style={styles.productImage}
-            />
+            <div
+              className="recently-viewed-icon"
+              style={styles.productIcon}
+            >
+              <div className="product-category-icon">
+                {getCategoryIcon(product.category)}
+              </div>
+              
+              {/* Stock indicator badge */}
+              <div 
+                className="recently-viewed-stock-badge"
+                style={{
+                  ...styles.stockBadge,
+                  backgroundColor: product.stock > 0 ? colors.success : colors.error
+                }}
+              >
+                {product.stock > 0 ? `${product.stock}` : '0'}
+              </div>
+            </div>
             
             <p 
               className="recently-viewed-name"
@@ -152,26 +247,33 @@ const RecentlyViewed = () => {
               style={styles.productName}
               title={product.name}
             >
-              {product.name}
+              {product.name.length > 12 ? `${product.name.substring(0, 12)}...` : product.name}
             </p>
+            
+            {window.innerWidth >= 499 && (
+              <div 
+                className="recently-viewed-category"
+                style={styles.category}
+              >
+                {product.category.toLowerCase().replace('_', ' ')}
+              </div>
+            )}
             
             <div 
               className="recently-viewed-rating"
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '4px',
-                marginBottom: '6px'
-              }}
+              style={styles.rating}
             >
-              <div style={{ color: colors.warning, fontSize: '12px' }}>
+              <div style={{ 
+                color: colors.warning, 
+                fontSize: window.innerWidth < 499 ? '7px' : '10px' 
+              }}>
                 {'★'.repeat(Math.floor(product.rating))}
-                {'☆'.repeat(5 - Math.floor(product.rating))}
               </div>
-              <span style={{ fontSize: '10px', color: colors.textSecondary }}>
-                ({product.reviewsCount})
-              </span>
+              {window.innerWidth >= 499 && (
+                <span style={{ fontSize: '8px', color: colors.textSecondary }}>
+                  ({product.reviewsCount})
+                </span>
+              )}
             </div>
             
             <p 
@@ -182,137 +284,47 @@ const RecentlyViewed = () => {
               {formatPrice(product.price)}
             </p>
             
-            {product.originalPrice && (
+            {product.originalPrice && window.innerWidth >= 499 && (
               <p 
                 className="recently-viewed-original-price"
                 style={{
-                  fontSize: '12px',
+                  fontSize: '9px',
                   textDecoration: 'line-through',
                   color: colors.textSecondary,
-                  margin: '2px 0 0 0'
+                  margin: '1px 0 0 0'
                 }}
               >
                 {formatPrice(product.originalPrice)}
               </p>
             )}
-            
-            {/* Stock indicator */}
-            <div 
-              className="recently-viewed-stock"
-              style={{
-                marginTop: '6px',
-                fontSize: '10px',
-                fontWeight: '600',
-                color: product.stock > 0 ? colors.success : colors.error
-              }}
-            >
-              {product.stock > 0 ? `✅ ${product.stock} left` : '❌ Out of stock'}
-            </div>
           </div>
         ))}
-      </div>
-      
-      {/* View All Button */}
-      <div 
-        className="recently-viewed-actions"
-        style={{
-          marginTop: '16px',
-          textAlign: 'center'
-        }}
-      >
-        <button
-          className="view-all-recent-btn btn"
-          id="view-all-recent-button"
-          data-testid="view-all-recent"
-          onClick={() => {
-            trackEvent('view_all_recent_clicked');
-            // This could trigger a modal or navigate to a dedicated page
-          }}
-          style={{
-            padding: '8px 16px',
-            border: `2px solid ${colors.primary}`,
-            borderRadius: '8px',
-            backgroundColor: 'transparent',
-            color: colors.primary,
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '600',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = colors.primary;
-            e.target.style.color = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = 'transparent';
-            e.target.style.color = colors.primary;
-          }}
-        >
-          👁️ View All Recent
-        </button>
-      </div>
-      
-      {/* Clear Recent History */}
-      <div 
-        className="clear-recent-container"
-        style={{
-          marginTop: '12px',
-          textAlign: 'center'
-        }}
-      >
-        <button
-          className="clear-recent-btn"
-          id="clear-recent-history"
-          data-testid="clear-recent-history"
-          onClick={() => {
-            // Clear recent history
-            recentlyViewed.forEach(() => {
-              // This would need a clear action in the store
-            });
-            trackEvent('clear_recent_history');
-          }}
-          style={{
-            padding: '4px 12px',
-            border: 'none',
-            borderRadius: '4px',
-            backgroundColor: 'transparent',
-            color: colors.textSecondary,
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.color = colors.error;
-            e.target.style.backgroundColor = `${colors.error}10`;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.color = colors.textSecondary;
-            e.target.style.backgroundColor = 'transparent';
-          }}
-        >
-          🗑️ Clear History
-        </button>
       </div>
       
       {/* Custom scrollbar styles for webkit browsers */}
       <style>{`
         .recently-viewed-scroll::-webkit-scrollbar {
-          height: 6px;
+          height: 4px;
         }
         
         .recently-viewed-scroll::-webkit-scrollbar-track {
           background: ${colors.surface};
-          border-radius: 3px;
+          border-radius: 2px;
         }
         
         .recently-viewed-scroll::-webkit-scrollbar-thumb {
           background: ${colors.border};
-          border-radius: 3px;
+          border-radius: 2px;
         }
         
         .recently-viewed-scroll::-webkit-scrollbar-thumb:hover {
           background: ${colors.textSecondary};
+        }
+        
+        @media (max-width: 498px) {
+          .recently-viewed-scroll::-webkit-scrollbar {
+            height: 3px;
+          }
         }
       `}</style>
     </div>

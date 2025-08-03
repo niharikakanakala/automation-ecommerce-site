@@ -25,8 +25,9 @@ const Header = ({ onCartClick, onWishlistClick }) => {
   };
   
   const getResponsiveStyles = () => {
-    const isMobile = window.innerWidth < 499;
-    const isTablet = window.innerWidth >= 499 && window.innerWidth < 768;
+    const width = window.innerWidth;
+    const isMobile = width < 499;
+    const isTablet = width >= 499 && width < 768;
     
     return {
       header: {
@@ -44,52 +45,72 @@ const Header = ({ onCartClick, onWishlistClick }) => {
         alignItems: 'center',
         maxWidth: '1400px',
         margin: '0 auto',
-        padding: isMobile ? '12px 16px' : isTablet ? '16px 20px' : '18px 24px',
-        minHeight: isMobile ? '56px' : '64px'
+        padding: isMobile ? '8px 12px' : isTablet ? '12px 16px' : '16px 20px',
+        minHeight: isMobile ? '50px' : '60px'
       },
       title: {
         margin: 0,
-        fontSize: isMobile ? '18px' : isTablet ? '22px' : '26px',
+        fontSize: isMobile ? '16px' : isTablet ? '20px' : '24px',
         color: colors.text,
         fontWeight: '800',
-        letterSpacing: '-0.5px'
+        letterSpacing: '-0.5px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       },
       actions: {
         display: 'flex',
-        gap: isMobile ? '8px' : isTablet ? '12px' : '16px',
+        gap: isMobile ? '4px' : isTablet ? '8px' : '12px',
         alignItems: 'center',
-        flexWrap: 'wrap'
+        flexWrap: 'nowrap'
       },
       themeBtn: {
-        padding: isMobile ? '6px 10px' : '8px 14px',
+        padding: isMobile ? '4px 8px' : '6px 12px',
         border: `2px solid ${colors.primary}`,
-        borderRadius: '20px',
+        borderRadius: isMobile ? '16px' : '20px',
         backgroundColor: 'transparent',
         color: colors.primary,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        gap: '6px',
-        fontSize: isMobile ? '12px' : '14px',
+        gap: isMobile ? '2px' : '4px',
+        fontSize: isMobile ? '10px' : '12px',
         fontWeight: '600',
         transition: 'all 0.2s ease',
-        minHeight: '36px'
+        minHeight: '32px',
+        whiteSpace: 'nowrap'
       },
       actionBtn: {
         background: 'none',
-        border: `2px solid transparent`,
-        borderRadius: '8px',
+        border: `1px solid transparent`,
+        borderRadius: '6px',
         cursor: 'pointer',
         color: colors.textSecondary,
-        fontSize: isMobile ? '12px' : '14px',
+        fontSize: isMobile ? '10px' : '12px',
         position: 'relative',
-        padding: isMobile ? '6px 8px' : '8px 12px',
+        padding: isMobile ? '4px 6px' : '6px 8px',
         transition: 'all 0.2s ease',
         fontWeight: '600',
-        minHeight: '36px',
+        minHeight: '32px',
         display: 'flex',
         alignItems: 'center',
-        gap: '4px'
+        gap: '2px',
+        whiteSpace: 'nowrap'
+      },
+      badge: {
+        position: 'absolute',
+        top: '-4px',
+        right: '-4px',
+        backgroundColor: colors.error,
+        color: 'white',
+        borderRadius: '8px',
+        padding: '1px 4px',
+        fontSize: isMobile ? '8px' : '9px',
+        fontWeight: 'bold',
+        minWidth: '16px',
+        textAlign: 'center',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+        animation: 'pulse 2s infinite'
       }
     };
   };
@@ -100,6 +121,7 @@ const Header = ({ onCartClick, onWishlistClick }) => {
     <header 
       className="app-header"
       id="main-header"
+      data-testid="main-header"
       style={styles.header}
     >
       <div 
@@ -110,9 +132,11 @@ const Header = ({ onCartClick, onWishlistClick }) => {
         <h1 
           className="site-title"
           id="site-title"
+          data-testid="site-title"
           style={styles.title}
         >
-          🛍️ Premium Store
+          <span>🛍️</span>
+          <span>Premium Store</span>
         </h1>
         
         <div 
@@ -140,7 +164,7 @@ const Header = ({ onCartClick, onWishlistClick }) => {
             </span>
             {window.innerWidth >= 499 && (
               <span className="theme-text">
-                {theme === 'colorblind' ? 'Accessible' : theme}
+                {theme === 'colorblind' ? 'Safe' : theme}
               </span>
             )}
           </button>
@@ -162,7 +186,7 @@ const Header = ({ onCartClick, onWishlistClick }) => {
           >
             <span className="wishlist-icon">❤️</span>
             <span className="wishlist-count">
-              {window.innerWidth >= 499 ? `Wishlist (${wishlistCount})` : `(${wishlistCount})`}
+              {window.innerWidth >= 499 ? `(${wishlistCount})` : wishlistCount}
             </span>
           </button>
           
@@ -183,27 +207,13 @@ const Header = ({ onCartClick, onWishlistClick }) => {
           >
             <span className="cart-icon">🛒</span>
             <span className="cart-count">
-              {window.innerWidth >= 499 ? `Cart (${cartCount})` : `(${cartCount})`}
+              {window.innerWidth >= 499 ? `(${cartCount})` : cartCount}
             </span>
             {cartCount > 0 && (
               <div 
                 className="cart-total-badge"
                 id="cart-total-display"
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
-                  backgroundColor: colors.error,
-                  color: 'white',
-                  borderRadius: '12px',
-                  padding: '2px 6px',
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  minWidth: '18px',
-                  textAlign: 'center',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                  animation: 'pulse 2s infinite'
-                }}
+                style={styles.badge}
               >
                 {window.innerWidth >= 768 ? formatPrice(cartTotal) : cartCount}
               </div>
