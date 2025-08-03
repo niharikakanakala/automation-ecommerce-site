@@ -146,7 +146,6 @@ const AnalyticsProvider = ({ children }) => {
     };
     
     setEvents(prev => [...prev, eventData]);
-    console.log('Analytics Event:', eventData);
   }, []);
   
   useEffect(() => {

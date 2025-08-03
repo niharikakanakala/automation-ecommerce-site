@@ -367,7 +367,6 @@ const analyticsMiddleware = store => next => action => {
   if (action.type.startsWith('ADD_TO_CART') || 
       action.type.startsWith('REMOVE_FROM_CART') ||
       action.type.startsWith('ADD_TO_WISHLIST')) {
-    console.log('Analytics Event:', action);
   }
   
   return next(action);
